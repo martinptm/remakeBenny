@@ -39,6 +39,7 @@ def main():
     colors = Colors()
     
     gameDisplay = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
+    gameDisplay.fill(colors.getColor('blue'))
     pg.display.set_caption('Benny-game')
 
     clock = pg.time.Clock()
@@ -63,25 +64,31 @@ def main():
         # Alle Nutzeraktionen bezüglich des gameDisplays erfassen
         for event in pg.event.get():
             
-            # wenn gameDisplay geschlossen wird die Spielschleife verlassen
+            print(event)
+            
+            # wenn gameDisplay geschlossen wird oder die esc-Taste gedrückt die Spielschleife verlassen
             if event.type == pg.QUIT:
                 gP.quitGame = True
-            #print(event)
+            elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE: # äquivalent wäre == 27
+                gP.quitGame = True
             
             # Loslassen einer Taste ausgenommen der Sprungtaste (damit Bewegen
-            # und Springen gleichzeitig möglich) 
-            if event.type == pg.KEYUP and not event.key == pg.K_UP:
-                
-                if gP.moveright and event.key == pg.K_RIGHT or gP.moveleft and event.key == pg.K_LEFT:
+            # und Springen gleichzeitig möglich)
+            # wenn eine der Bewegungstasten losgelassen wird wenn eine x-Bewegung
+            # stattfindet
+            #if event.type == pg.KEYUP and not event.key == pg.K_UP and not gP.jump:
+            if event.type == pg.KEYUP and not gP.jump:
+                    
+                if gP.moveright and event.key == pg.K_RIGHT or gP.moveleft and event.key == pg.K_LEFT:# and not gP.jump:
                     gP.keyup = True
                     gP.xchange = 0
                     gP.moveright = False
                     gP.moveleft = False
-            
+                
             # Tastendruck detektieren
             if event.type == pg.KEYDOWN:
                 gP.keyup = False
-                
+                    
                 # Sprunganimation einleiten
                 if event.key == pg.K_UP:
                     if gP.jump_clickable:
@@ -89,40 +96,50 @@ def main():
                         gP.jump = True
                         gP.movedown = False
                         gP.t = 0
-                
-                # nach links oder rechts bewegen
-                elif event.key == pg.K_RIGHT:
-                    gP.moveright = True
-                    gP.xchange += 5
-                elif event.key == pg.K_LEFT:
-                    gP.moveleft = True
-                    gP.xchange -= 5
-        
+                        gP.speedchangable = False
+                        
+                if gP.speedchangable:    
+                    # nach links oder rechts bewegen
+                    if event.key == pg.K_RIGHT:
+                        gP.moveright = True
+                        gP.xchange += 5
+                    elif event.key == pg.K_LEFT:
+                        gP.moveleft = True
+                        gP.xchange -= 5
+            
         if not gP.keyup and (gP.moveright and gP.xcoor <= gP.disp_wdth - car_width) or(gP.moveleft and gP.xcoor >= 0):
             gP.xcoor += gP.xchange
 
         if gP.jump:
             #if gP.xcoor > xPosBloc and gP.xcoor < xPosBloc+gP.bloc_width:
-             #   if gP.ycoor > gP.y_max+car_height-gP.bloc_height: 
-                #gP.ycoor = gP.y_max
-                 #   gP.jump = False
-                  #  gP.jump_clickable = True
+            #   if gP.ycoor > gP.y_max+car_height-gP.bloc_height: 
+            #gP.ycoor = gP.y_max
+            #   gP.jump = False
+            #  gP.jump_clickable = True
+            
+            # Berechne neue y-Position und beende Sprung wenn auf Untergrund
+            gP.t += 1/gP.FPS
+            gP.ycoor = gP.y_max - v0 * gP.t + 0.5 * a * gP.t**2
             if gP.ycoor > gP.y_max:
                 gP.ycoor = gP.y_max
                 gP.jump = False
                 gP.jump_clickable = True
-            else:
-                gP.t += 1/gP.FPS
-                gP.ycoor = gP.y_max - v0 * gP.t + 0.5 * a * gP.t**2
-            
-        gameDisplay.fill(colors.getColor('black'))
+                
+                gP.keyup = True
+                gP.xchange = 0
+                gP.moveright = False
+                gP.moveleft = False
+                gP.speedchangable = True
+                
+        gameDisplay.fill(colors.getColor('blue'))
         mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
         draw_bloc('red', colors, xPosBloc, gP.y_max+car_height-gP.bloc_height, gP.bloc_width, gP.bloc_height, pg, gameDisplay)
+        
         pg.display.update()
-    
+        
         # number of FPS at which the game ist running
         clock.tick(gP.FPS)
-    
+        
     # Spiel beenden und Programm verlassen 
     pg.quit()
     quit()

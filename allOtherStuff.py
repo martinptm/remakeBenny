@@ -60,9 +60,11 @@ class gameParams():
     
         # Parameter um zu checken, ob Taste gedrückt gehalten wird
         self.keyup = False
+        
+        self.speedchangable = True
     
         # Parameter, wenn gameDisplay geschlossen wird
         self.quitGame = False
     
-        self.bloc_height = 20
-        self.bloc_width = 50
+        self.bloc_height = 40
+        self.bloc_width = 60
