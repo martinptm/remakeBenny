@@ -28,7 +28,7 @@ import numpy as np
 import pygame as pg
 import random as ran
 
-from allOtherStuff_new import Colors, changeMoveDown, draw_bloc, mv_bloc, gameParams
+from allOtherStuff_new import *
 from calcAccel import calcAandV0
 
     
@@ -53,8 +53,10 @@ def main():
     (a,v0) = calcAandV0(.5, gP.jumpheight)
     
     xPosBloc = ran.randrange(gP.disp_wdth/5, (4/5)*gP.disp_wdth)
-   
-    draw_bloc('red', colors, xPosBloc, gP.y_max+car_height-gP.bloc_height, gP.bloc_width, gP.bloc_height, pg, gameDisplay)
+    gP.obstacles.append(Obstacle(xPosBloc, xPosBloc+gP.bloc_width, gP.bloc_height, 'red'))
+    
+    for o in gP.obstacles:
+        draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
     
     # Initialsiation Ausgangsposition 
     mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
@@ -115,9 +117,10 @@ def main():
 
         # das so eig. schön, da springen von Hinderniss dann höher usw.
         if gP.jump:
-            # Berechne neue y-Position und beende Sprung wenn auf Untergrund oder Hindernis
+            
             gP.t += 1/gP.FPS
             gP.ycoor = gP.y_max - v0 * gP.t + 0.5 * a * gP.t**2
+                
             
             #if gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height: #problem wird sein, dass dann nicht witer runter fällt
             #    gP.jump = False
@@ -129,7 +132,8 @@ def main():
                 
         gameDisplay.fill(colors.getColor('blue'))
         mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
-        draw_bloc('red', colors, xPosBloc, gP.y_max+car_height-gP.bloc_height, gP.bloc_width, gP.bloc_height, pg, gameDisplay)
+        for o in gP.obstacles:
+            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
         
         pg.display.update()
         

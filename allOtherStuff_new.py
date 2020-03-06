@@ -31,7 +31,7 @@ def mv_bloc(bl, x, y, gameDisplay):
 
 class gameParams():
     def __init__(self):
-        self.disp_wdth = 800
+        self.disp_wdth = 600
         self.disp_hght = 600
     
         self.FPS = 60
@@ -49,7 +49,6 @@ class gameParams():
         
         self.jump = False
         
-    
         self.wdth = 30
         self.hght = 50
     
@@ -62,9 +61,40 @@ class gameParams():
         self.start_jump = False
         
         self.aboveObstacle = False
+        
+        self.obstacles = []
     
         # Parameter, wenn gameDisplay geschlossen wird
         self.quitGame = False
     
         self.bloc_height = 40
         self.bloc_width = 60
+        
+        self.onObstacle = False
+        
+class Obstacle():
+    def __init__(self, xstart, xstop, height, color):
+        self._xstart = xstart
+        self._xstop = xstop
+        self._height = height
+        self._color = color
+    
+    # Getter
+    def gXStart(self):
+        return self._xstart
+    def gXStop(self):
+        return self._xstop
+    def gHeight(self):
+        return self._height
+    def gColor(self):
+        return self._color
+    
+    # Setter
+    def sXStart(self, xstart):
+        self._xstart = xstart
+    def sXStop(self, xstop):
+        self._xstop = xstop
+    def sHeight(self, height):
+        self._height = height
+    def sColor(self, color):
+        self._color = color
