@@ -74,6 +74,13 @@ class gameParams():
         self.targets = []
 
         self.lives = 10
+
+        self.car_width = 0
+
+        self.targetWidth = 20
+
+    def gTargetWidth(self):
+        return self.targetWidth
         
 class Obstacle():
     def __init__(self, xstart, xstop, height, color):
@@ -125,11 +132,11 @@ class Laser():
         self.ypos = y
 
 class Target():
-    def __init__(self, xpos, ypos, color):
+    def __init__(self, xpos, ypos, color, gP):
         self.xpos = xpos
         self.ypos = ypos
         self.color = color
-        self.wdth = 20
+        self.wdth = gP.gTargetWidth()
         self.hght = 20
 
     def gX(self):

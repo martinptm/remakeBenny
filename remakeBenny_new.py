@@ -33,6 +33,8 @@ from calcAccel import calcAandV0
 
 def handleEvent(event, pg, gP):
     #print(event)
+
+    # detect if gamewindow is closed or esc-key is pressed
     if event.type == pg.QUIT:
         gP.quitGame = True
     elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:  # äquivalent wäre == 27
@@ -58,7 +60,9 @@ def handleEvent(event, pg, gP):
             gP.ml = True
             gP.mr = False
         elif event.key == pg.K_SPACE:
+            #laser at left and right side of the player
             gP.lasers.append( Laser(gP.xcoor, gP.ycoor, 'red'))
+            gP.lasers.append( Laser(gP.xcoor+gP.car_width, gP.ycoor, 'red'))
             print(gP.lasers)
 
 def main():
@@ -76,7 +80,7 @@ def main():
     car = pg.image.load('racecar.png')
     
     car_size = car.get_rect().size
-    car_width = car_size[0]
+    gP.car_width = car_size[0]
     car_height = car_size[1]
     
     (a,v0) = calcAandV0(.5, gP.jumpheight)
@@ -96,16 +100,12 @@ def main():
 
     while not gP.quitGame:
 
+        # maybe add some stochastics in here
         cou += 1
-
-        if cou < 120:
-            if cou%60 == 0:
-                gP.targets.append(Target(ran.randrange(0, gP.disp_wdth), 0, 'green'))
-                print(gP.targets)
-        else:
-            if cou%30 == 0:
-                gP.targets.append(Target(ran.randrange(0, gP.disp_wdth), 0, 'green'))
-                print(gP.targets)
+        if cou == 60:
+            gP.targets.append(Target(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 'green', gP))
+            print(gP.targets)
+            cou = 0
         
         if gP.ycoor == gP.y_max:# or (gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height):
             gP.onGround = True
@@ -128,7 +128,7 @@ def main():
         # Zähler indentifiziert das aktuell relevante Hinderniss
         c = 0
         for c in range(0, len(gP.obstacles)):
-            if gP.xcoor + gP.xchange > gP.obstacles[c].gXStart() - car_width and gP.xcoor + gP.xchange < gP.obstacles[c].gXStop():
+            if gP.xcoor + gP.xchange > gP.obstacles[c].gXStart() - gP.car_width and gP.xcoor + gP.xchange < gP.obstacles[c].gXStop():
                 gP.at_x_of_obst = True
                 break
             else:
@@ -157,7 +157,7 @@ def main():
                     gP.xchange = - gP.xchange
 
         # sonst durch Spielfeld begrenzt
-        if gP.xcoor + gP.xchange <= gP.disp_wdth - car_width and gP.xcoor + gP.xchange >= 0:
+        if gP.xcoor + gP.xchange <= gP.disp_wdth - gP.car_width and gP.xcoor + gP.xchange >= 0:
             gP.xcoor += gP.xchange
         elif not gP.onGround:
             gP.xchange = - gP.xchange
@@ -195,11 +195,17 @@ def main():
                 gP.ycoor = gP.y_max
                 gP.t = 0
                 
-        gameDisplay.fill(colors.getColor('blue'))
-        mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
-        for o in gP.obstacles:
-            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
+        # Ebenen:
+        #   - Hintergrund
+        #   - Laser
+        #   - Targets
+        #   - Player
+        #   - Obstacle
 
+        # Hintergrund
+        gameDisplay.fill(colors.getColor('blue'))
+
+        # Laser
         for l in gP.lasers:  
 
             target_hit = False
@@ -208,6 +214,7 @@ def main():
                     target_hit = True
                     print("target hit!")
                     gP.targets.remove(t)
+                    gP.lasers.remove(l)
                     break
 
             if not target_hit:
@@ -217,6 +224,7 @@ def main():
                     draw_bloc(l.gCol(), colors, l.gX(), l.gY()-l.gHght(), l.gWdth(), l.gHght(), pg, gameDisplay)
                     l.sY(l.gY()-20)  
 
+        # Targets
         for t in gP.targets:
 
             for o in gP.obstacles:  
@@ -232,7 +240,7 @@ def main():
 
             if not hit_obstacle:
                 # check y- and x-coordinates of target and player, ycheck so that you can jump over a target without getting hit
-                if (t.gY() >= gP.ycoor and t.gY() < gP.ycoor + car_height) and  (t.gX() > gP.xcoor and t.gX() < gP.xcoor + car_width):
+                if (t.gY() >= gP.ycoor and t.gY() < gP.ycoor + car_height) and  (t.gX() > gP.xcoor and t.gX() < gP.xcoor + gP.car_width):
                     #print("player hit!")
                     gP.lives = 0
                 # falling
@@ -244,6 +252,13 @@ def main():
                     gP.lives -= 1
                     #print("ground hit!")
                     gP.targets.remove(t)
+
+        # Player
+        mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
+
+        # Obstacles
+        for o in gP.obstacles:
+            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
         
         pg.display.update()
         
