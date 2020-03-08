@@ -1,0 +1,27 @@
+$ virtualenv venvRemakeBenny
+
+$ source venvRemakeBenny/bin/activate
+
+$ python -m pip install venvdotapp
+
+$ venvdotapp
+Traceback (most recent call last):
+  File "/Users/martin/Desktop/Programmierung/Python/PyGame/bennyRemake/remakeBenny/venvRemakeBenny/bin/venvdotapp", line 8, in <module>
+    sys.exit(_main())
+  File "/Users/martin/Desktop/Programmierung/Python/PyGame/bennyRemake/remakeBenny/venvRemakeBenny/lib/python3.6/site-packages/venvdotapp.py", line 179, in _main
+    require_bundle()
+  File "/Users/martin/Desktop/Programmierung/Python/PyGame/bennyRemake/remakeBenny/venvRemakeBenny/lib/python3.6/site-packages/venvdotapp.py", line 163, in require_bundle
+    exe = _prepare_bundle(bundle_id)
+  File "/Users/martin/Desktop/Programmierung/Python/PyGame/bennyRemake/remakeBenny/venvRemakeBenny/lib/python3.6/site-packages/venvdotapp.py", line 142, in _prepare_bundle
+    "Sorry, your Python wasn't built with --enable-framework."
+venvdotapp.NotAFrameworkPython: Sorry, your Python wasn't built with --enable-framework.
+
+$ python -m pip install pygame
+
+$ python -m pygame.examples.aliens
+
+numpy aus der miniconda-Installation in diesem venv verfügbar machen (Pfade per Hand rausgesucht):
+$ rsync -av /Users/martin/miniconda3/pkgs/numpy-base-1.16.4-py36ha711998_0/lib/python3.6/site-packages/numpy/ /Users/martin/Desktop/Programmierung/Python/PyGame/bennyRemake/remakeBenny/venvRemakeBenny/lib/python3.6/site-packages/numpy/
+-> damit ist es wohl nicht getan...
+"/Users/martin/Desktop/Programmierung/Python/PyGame/bennyRemake/remakeBenny/venvRemakeBenny/lib/python3.6/site-packages/numpy/" wieder löschen, nachher mit pip install versuchen
+

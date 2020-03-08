@@ -40,17 +40,15 @@ class gameParams():
         self.y_max = self.disp_hght - 100
     
         # Startkoordinaten
-        self.xcoor = 100
+        self.xcoor = 0
         self.ycoor = self.y_max
     
         self.t = 0
     
+        self.step_size = 3
         self.xchange = 0
         
         self.jump = False
-        
-        self.wdth = 30
-        self.hght = 50
     
         self.jumpheight = 100
         self.jumpstep = 5
@@ -67,10 +65,12 @@ class gameParams():
         # Parameter, wenn gameDisplay geschlossen wird
         self.quitGame = False
     
-        self.bloc_height = 40
-        self.bloc_width = 60
+        self.bloc_height = 60
+        self.bloc_width = 30
         
         self.onObstacle = False
+
+        self.lasers = []
         
 class Obstacle():
     def __init__(self, xstart, xstop, height, color):
@@ -98,3 +98,26 @@ class Obstacle():
         self._height = height
     def sColor(self, color):
         self._color = color
+
+class Laser():
+    def __init__(self, xpos, ypos, color):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.color = color
+        self.wdth = 5
+        self.hght = 30
+
+    def gX(self):
+        return self.xpos
+    def gY(self):
+        return self.ypos
+    def gCol(self):
+        return self.color
+    def gWdth(self):
+        return self.wdth
+    def gHght(self):
+        return self.hght
+
+    def sY(self,x):
+        self.ypos = x
+
