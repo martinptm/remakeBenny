@@ -66,11 +66,14 @@ class gameParams():
         self.quitGame = False
     
         self.bloc_height = 60
-        self.bloc_width = 30
+        self.bloc_width = 90
         
         self.onObstacle = False
 
         self.lasers = []
+        self.targets = []
+
+        self.lives = 10
         
 class Obstacle():
     def __init__(self, xstart, xstop, height, color):
@@ -118,6 +121,29 @@ class Laser():
     def gHght(self):
         return self.hght
 
-    def sY(self,x):
-        self.ypos = x
+    def sY(self, y):
+        self.ypos = y
+
+class Target():
+    def __init__(self, xpos, ypos, color):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.color = color
+        self.wdth = 20
+        self.hght = 20
+
+    def gX(self):
+        return self.xpos
+    def gY(self):
+        return self.ypos
+    def gCol(self):
+        return self.color
+    def gWdth(self):
+        return self.wdth
+    def gHght(self):
+        return self.hght
+
+    def sY(self, y):
+        self.ypos = y
+
 
