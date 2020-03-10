@@ -27,6 +27,13 @@ void loop() {
   y_val = analogRead(yPin);
   sw_val = analogRead(swPin);
 
-  Serial.println(x_val, ", ", y_val, ", ", sw_val);
+  Serial.print("\n ");
+  Serial.print("(");
+  Serial.print(x_val);
+  Serial.print(", ");
+  Serial.print(y_val);
+  Serial.print(", ");
+  Serial.print(sw_val);
+  Serial.print(")");
 
 }
