@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+const int xPin = A3;
+const int yPin = A4;
+const int swPin = A5;
+
+int x_val;
+int y_val;
+int sw_val;
+
+void setup() {
+
+  pinMode(xPin, INPUT);
+  pinMode(yPin, INPUT);
+  pinMode(swPin, INPUT);
+
+  Serial.begin(9600);
+
+}
+
+void loop() {
+
+  delay(500);
+  
+  x_val = analogRead(xPin);
+  y_val = analogRead(yPin);
+  sw_val = analogRead(swPin);
+
+  Serial.println(x_val, ", ", y_val, ", ", sw_val);
+
+}
