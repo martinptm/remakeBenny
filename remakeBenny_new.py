@@ -85,6 +85,9 @@ def main():
     
     car = pg.image.load('racecar.png')
     
+    for c in range(1,14):
+        gP.explosion_images.append(pg.image.load('./Images_Explosion/' + str(c) + '.jpg'))
+    
     car_size = car.get_rect().size
     gP.car_width = car_size[0]
     car_height = car_size[1]
@@ -206,6 +209,7 @@ def main():
         #   - Targets
         #   - Player
         #   - Obstacle
+        #   - Explosion
 
         # Hintergrund
         gameDisplay.fill(colors.getColor('blue'))
@@ -269,10 +273,11 @@ def main():
         
         # Explosions
         for e in gP.explosions:
-            if e.gState() == 15:
+            if e.gState() == 14:
                 gP.explosions.remove(e)
             else:
-                draw_bloc('red', colors, e.gX(), e.gY(), 20, 30, pg, gameDisplay)
+                #draw_bloc('red', colors, e.gX(), e.gY(), 20, 30, pg, gameDisplay)
+                mv_bloc(gP.explosion_images[e.gState()-1] , e.gX(), e.gY(), gameDisplay)
                 e.sState(e.gState()+1)
         
         pg.display.update()

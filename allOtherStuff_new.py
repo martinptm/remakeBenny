@@ -73,6 +73,7 @@ class gameParams():
         self.lasers = []
         self.targets = []
         self.explosions = []
+        self.explosion_images = []
 
         self.lives = 10
 
