@@ -72,6 +72,7 @@ class gameParams():
 
         self.lasers = []
         self.targets = []
+        self.explosions = []
 
         self.lives = 10
 
@@ -153,4 +154,20 @@ class Target():
     def sY(self, y):
         self.ypos = y
 
+class Explosion():
+    def __init__(self, xpos, ypos):
+        self.x = xpos
+        self.y = ypos
+        self.state = 0
+    
+    def sState(self, state):
+        self.state = state
+    
+    def gState(self):
+        return self.state
+    
+    def gX(self):
+        return self.x
+    def gY(self):
+        return self.y
 

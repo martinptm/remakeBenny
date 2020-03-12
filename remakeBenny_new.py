@@ -22,7 +22,6 @@ Simultion Sprung (Herleitung siehe 'calcAccel.py'):
     a = 356
     y(t) = y_max - v0 * t + 0.5 a * t²
     
-Ich grüße Jakob.
 
 """
 
@@ -65,7 +64,6 @@ def handleEvent(event, pg, gP):
             #laser at left and right side of the player
             gP.lasers.append( Laser(gP.xcoor, gP.ycoor, 'red'))
             gP.lasers.append( Laser(gP.xcoor+gP.car_width, gP.ycoor, 'red'))
-            print(gP.lasers)
 
 def main():
     
@@ -110,9 +108,8 @@ def main():
 
         # maybe add some stochastics in here
         cou += 1
-        if cou == 240:
+        if cou == 180:
             gP.targets.append(Target(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 'green', gP))
-            print(gP.targets)
             cou = 0
         
         if gP.ycoor == gP.y_max:# or (gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height):
@@ -220,7 +217,7 @@ def main():
             for t in gP.targets:
                 if ( l.gY() <= t.gY()+t.gHght() ) and  ( l.gX()+l.gWdth() >= t.gX() and l.gX() < t.gX()+t.gWdth() ):
                     target_hit = True
-                    print("target hit!")
+                    gP.explosions.append(Explosion(l.gX(), l.gY()))
                     gP.targets.remove(t)
                     gP.lasers.remove(l)
                     break
@@ -231,7 +228,6 @@ def main():
                 else: 
                     draw_bloc(l.gCol(), colors, l.gX(), l.gY()-l.gHght(), l.gWdth(), l.gHght(), pg, gameDisplay)
                     l.sY(l.gY()-20)
-        print(gP.lasers)
 
         # Targets
         for t in gP.targets:
@@ -242,6 +238,7 @@ def main():
                     #print("obstacle hit!")
                     hit_obstacle = True
                     gP.targets.remove(t)
+                    gP.explosions.append(Explosion(t.gX(), t.gY()-30))
                     gP.lives -= 1
                     break
                 else:
@@ -260,6 +257,7 @@ def main():
                 else:
                     gP.lives -= 1
                     #print("ground hit!")
+                    gP.explosions.append(Explosion(t.gX(), t.gY()-30))
                     gP.targets.remove(t)
 
         # Player
@@ -268,6 +266,14 @@ def main():
         # Obstacles
         for o in gP.obstacles:
             draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
+        
+        # Explosions
+        for e in gP.explosions:
+            if e.gState() == 15:
+                gP.explosions.remove(e)
+            else:
+                draw_bloc('red', colors, e.gX(), e.gY(), 20, 30, pg, gameDisplay)
+                e.sState(e.gState()+1)
         
         pg.display.update()
         
