@@ -21,6 +21,8 @@ Simultion Sprung (Herleitung siehe 'calcAccel.py'):
     v0 = 267
     a = 356
     y(t) = y_max - v0 * t + 0.5 a * t²
+    
+Ich grüße Jakob.
 
 """
 
@@ -66,6 +68,12 @@ def handleEvent(event, pg, gP):
             print(gP.lasers)
 
 def main():
+    
+    """
+    Idee: Try/Catch für Entscheidung ob mit JoyStick oder Tastatur?
+    Oder Menü-Auswahl?
+    """
+    
     pg.init()
     
     gP = gameParams()
@@ -102,7 +110,7 @@ def main():
 
         # maybe add some stochastics in here
         cou += 1
-        if cou == 60:
+        if cou == 240:
             gP.targets.append(Target(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 'green', gP))
             print(gP.targets)
             cou = 0
@@ -222,7 +230,8 @@ def main():
                     gP.lasers.remove(l)
                 else: 
                     draw_bloc(l.gCol(), colors, l.gX(), l.gY()-l.gHght(), l.gWdth(), l.gHght(), pg, gameDisplay)
-                    l.sY(l.gY()-20)  
+                    l.sY(l.gY()-20)
+        print(gP.lasers)
 
         # Targets
         for t in gP.targets:
