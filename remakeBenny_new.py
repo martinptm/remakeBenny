@@ -85,9 +85,11 @@ def main():
     
     car = pg.image.load('racecar.png')
     
-    for c in range(1,14):
-        gP.explosion_images.append(pg.image.load('./Images_Explosion/' + str(c) + '.jpg'))
-    
+    # Bilder laden und auf Größe 50x50px skalieren
+    for c in range(1,13):
+        im = pg.transform.scale(pg.image.load('./Images_Explosion/' + str(c) + '.png'), (50, 50))
+        gP.explosion_images.append(im)
+          
     car_size = car.get_rect().size
     gP.car_width = car_size[0]
     car_height = car_size[1]
@@ -273,11 +275,11 @@ def main():
         
         # Explosions
         for e in gP.explosions:
-            if e.gState() == 14:
+            if e.gState() == len(gP.explosion_images)+1:
                 gP.explosions.remove(e)
             else:
-                #draw_bloc('red', colors, e.gX(), e.gY(), 20, 30, pg, gameDisplay)
-                mv_bloc(gP.explosion_images[e.gState()-1] , e.gX(), e.gY(), gameDisplay)
+                # '-10' bei Koordinate empirisch gefunden
+                mv_bloc(gP.explosion_images[e.gState()-1] , e.gX()-10, e.gY()-10, gameDisplay)
                 e.sState(e.gState()+1)
         
         pg.display.update()
