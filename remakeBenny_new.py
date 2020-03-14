@@ -65,7 +65,7 @@ def handleEvent(player, event, pg, gP):
         elif event.key == pg.K_SPACE:
             #laser at left and right side of the player (extra shifts found by testing)
             gP.lasers.append( Laser(player.gX()+15, player.gY(), 'red'))
-            gP.lasers.append( Laser(player.gX()+player.gWdth()-20, player.gY(), 'red'))
+            gP.lasers.append( Laser(player.gX()+player.gWdth(), player.gY(), 'red'))
             gP.throw_up = True
 
 def choosefig(player, gameDisplay, cou, gP):
@@ -124,7 +124,7 @@ def main():
     #     gP.explosion_images.append(im)
     load_Images(gP, pg)
 
-    player = Player(gP.stand_images[0], 100,  100, gP.y_max)
+    player = Player(gP.stand_images[0], 80,  80, gP.y_max)
     
     (a,v0) = calcAandV0(.5, gP.jumpheight)
     
@@ -134,8 +134,11 @@ def main():
     #gP.obstacles.append(Obstacle(xPosBloc, xPosBloc+gP.bloc_width, gP.bloc_height, 'red'))
     
     for o in gP.obstacles:
-        draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
+        # '+20'-width found by trial
+        draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width+20, o.gHeight(), pg, gameDisplay)
+        #draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
     
+
     # Initialsiation Ausgangsposition 
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
 
@@ -306,8 +309,9 @@ def main():
 
         # Obstacles
         for o in gP.obstacles:
-            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
-        
+            # '+20'-width found by trial
+            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width+20, o.gHeight(), pg, gameDisplay)
+            #draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
         # Explosions
         for e in gP.explosions:
             if e.gState() == len(gP.explosion_images)+1:

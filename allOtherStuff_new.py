@@ -82,7 +82,7 @@ class gameParams():
         self.quitGame = False
     
         self.bloc_height = 60
-        self.bloc_width = 90
+        self.bloc_width = 90-20
         
         self.onObstacle = False
 
