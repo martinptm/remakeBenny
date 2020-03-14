@@ -26,7 +26,7 @@ def changeMoveDown(movedown):
 def draw_bloc(color, colors, xcoor, ycoor, wdth, hgth, pg, gameDisplay):
     pg.draw.rect(gameDisplay, colors.getColor(color), [xcoor, ycoor, wdth, hgth])
     
-def mv_bloc(bl, x, y, gameDisplay):
+def draw_image(bl, x, y, gameDisplay):
         gameDisplay.blit(bl, (x,y))
 
 class gameParams():
@@ -40,8 +40,9 @@ class gameParams():
         self.y_max = self.disp_hght - 100
     
         # Startkoordinaten
-        self.xcoor = 0
-        self.ycoor = self.y_max
+        #self.xcoor = 0
+        #self.ycoor = self.y_max
+        #self.car_width = 0
     
         self.t = 0
     
@@ -59,8 +60,8 @@ class gameParams():
         self.start_jump = False
         
         self.aboveObstacle = False
-        
         self.obstacles = []
+        self.at_x_of_obst = False
     
         # Parameter, wenn gameDisplay geschlossen wird
         self.quitGame = False
@@ -76,8 +77,6 @@ class gameParams():
         self.explosion_images = []
 
         self.lives = 10
-
-        self.car_width = 0
 
         self.targetWidth = 20
 
@@ -172,3 +171,26 @@ class Explosion():
     def gY(self):
         return self.y
 
+class Player():
+    def __init__(self, image, wdth, hght, y_max):
+        self.image = image
+        self.x_coor = 0
+        self.y_coor = y_max - hght
+        self.hght = hght
+        self.wdth = wdth
+
+    def gX(self):
+        return self.x_coor
+    def gY(self):
+        return self.y_coor
+    def gImage(self):
+        return self.image
+    def gWdth(self):
+        return self.wdth
+    def gHght(self):
+        return self.hght
+
+    def sX(self, x):
+        self.x_coor = x
+    def sY(self, y):
+        self.y_coor = y

@@ -32,7 +32,7 @@ import random as ran
 from allOtherStuff_new import *
 from calcAccel import calcAandV0
 
-def handleEvent(event, pg, gP):
+def handleEvent(player, event, pg, gP):
     #print(event)
 
     # detect if gamewindow is closed or esc-key is pressed
@@ -62,8 +62,8 @@ def handleEvent(event, pg, gP):
             gP.mr = False
         elif event.key == pg.K_SPACE:
             #laser at left and right side of the player
-            gP.lasers.append( Laser(gP.xcoor, gP.ycoor, 'red'))
-            gP.lasers.append( Laser(gP.xcoor+gP.car_width, gP.ycoor, 'red'))
+            gP.lasers.append( Laser(player.gX(), player.gY(), 'red'))
+            gP.lasers.append( Laser(player.gX()+player.gWdth(), player.gY(), 'red'))
 
 def main():
     
@@ -84,15 +84,18 @@ def main():
     clock = pg.time.Clock()
     
     car = pg.image.load('racecar.png')
+    car_size = car.get_rect().size
+    gP.car_width = car_size[0]
+    car_height = car_size[1]
+
+    player = Player(car, car_size[0],  car_size[1], gP.y_max)
     
     # Bilder laden und auf Größe 50x50px skalieren
     for c in range(1,13):
         im = pg.transform.scale(pg.image.load('./Images_Explosion/' + str(c) + '.png'), (50, 50))
         gP.explosion_images.append(im)
           
-    car_size = car.get_rect().size
-    gP.car_width = car_size[0]
-    car_height = car_size[1]
+    
     
     (a,v0) = calcAandV0(.5, gP.jumpheight)
     
@@ -102,10 +105,10 @@ def main():
     #gP.obstacles.append(Obstacle(xPosBloc, xPosBloc+gP.bloc_width, gP.bloc_height, 'red'))
     
     for o in gP.obstacles:
-        draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
+        draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
     
     # Initialsiation Ausgangsposition 
-    mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
+    draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
 
     cou = 0
 
@@ -117,13 +120,13 @@ def main():
             gP.targets.append(Target(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 'green', gP))
             cou = 0
         
-        if gP.ycoor == gP.y_max:# or (gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height):
+        if player.gY() == gP.y_max:# or (gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height):
             gP.onGround = True
         else:
             gP.onGround = False
             
         for event in pg.event.get():
-            handleEvent(event, pg, gP)
+            handleEvent(player, event, pg, gP)
                       
         if gP.onGround or (gP.at_x_of_obst and not gP.jump):
             if gP.start_jump:
@@ -138,7 +141,7 @@ def main():
         # Zähler indentifiziert das aktuell relevante Hinderniss
         c = 0
         for c in range(0, len(gP.obstacles)):
-            if gP.xcoor + gP.xchange > gP.obstacles[c].gXStart() - gP.car_width and gP.xcoor + gP.xchange < gP.obstacles[c].gXStop():
+            if player.gX() + gP.xchange > gP.obstacles[c].gXStart() - player.gWdth() and player.gX() + gP.xchange < gP.obstacles[c].gXStop():
                 gP.at_x_of_obst = True
                 break
             else:
@@ -150,16 +153,15 @@ def main():
             if gP.onGround:
                 gP.xchange = 0  
             elif gP.jump: # 
-                if gP.ycoor < gP.y_max - gP.obstacles[c].gHeight():
+                if player.gY() < gP.y_max - gP.obstacles[c].gHeight():
                     # Fall wenn höher als Hinderniss und noch im Sprung
                     pass
-                elif gP.start_jump:
+                elif gP.start_jump and ychange==0:
                     # Fall wenn Absprung auf Hindernis
                     pass
-                elif gP.ycoor - ychange <= gP.y_max - gP.obstacles[c].gHeight() and ychange >= 0:
+                elif player.gY() - ychange <= gP.y_max - gP.obstacles[c].gHeight() and ychange >= 0:
                     # Fall, dass auf dem Hindernis, nur möglich wenn nicht an Höhe gewinnend
-                    #no y-change
-                    gP.ycoor = gP.y_max - gP.obstacles[c].gHeight()
+                    player.sY(gP.y_max - gP.obstacles[c].gHeight())
                     gP.t = 0
                     gP.jump = False
                 else: 
@@ -167,8 +169,8 @@ def main():
                     gP.xchange = - gP.xchange
 
         # sonst durch Spielfeld begrenzt
-        if gP.xcoor + gP.xchange <= gP.disp_wdth - gP.car_width and gP.xcoor + gP.xchange >= 0:
-            gP.xcoor += gP.xchange
+        if player.gX() + gP.xchange <= gP.disp_wdth - player.gWdth() and player.gX() + gP.xchange >= 0:
+            player.sX(player.gX() + gP.xchange)
         elif not gP.onGround:
             gP.xchange = - gP.xchange
 
@@ -184,25 +186,25 @@ def main():
             # -v0 + a*gP.t
             # flexible Formulierung ohne Abhändigkeit von Absprunghöhe
             ychange =  1/gP.FPS * (-v0 + a*gP.t)
-            gP.ycoor += ychange
+            player.sY(player.gY() + ychange)
             # alte Formulierung mit festem Startpunkt
             # gP.ycoor = gP.y_max - v0 * gP.t + 0.5 * a * gP.t**2
             
             # Landen auf Boden 
-            if gP.ycoor > gP.y_max:
-                gP.ycoor = gP.y_max
+            if player.gY() > gP.y_max:
+                player.sY(gP.y_max)
                 gP.jump = False
                 gP.t = 0
 
         # Bedingung wenn auf Block war, aber nun nicht mehr ist
-        if not gP.jump and not gP.at_x_of_obst  and gP.ycoor < gP.y_max:
+        if not gP.jump and not gP.at_x_of_obst  and player.gY() < gP.y_max:
             gP.t += 1/gP.FPS
             #gP.ycoor = gP.y_max - gP.obstacles[c].gHeight() + 0.5 * a * gP.t**2  # veränderte Bewegungsgleichung, da kein Absprung
             ychange =  1/gP.FPS * (a*gP.t)  # veränderte Bewegungsgleichung, da kein Absprung
-            gP.ycoor += ychange
+            player.sY(player.gY() + ychange)
 
-            if gP.ycoor > gP.y_max:
-                gP.ycoor = gP.y_max
+            if player.gY() > gP.y_max:
+                player.sY(gP.y_max)
                 gP.t = 0
                 
         # Ebenen:
@@ -240,7 +242,7 @@ def main():
 
             for o in gP.obstacles:  
                 # check if target hits an obstacle
-                if t.gY() >= gP.y_max + (car_height - o.gHeight()) and (t.gX() + t.gWdth() >= o.gXStart() and t.gX() <= o.gXStop()):
+                if t.gY() >= gP.y_max + (player.gHght() - o.gHeight()) and (t.gX() + t.gWdth() >= o.gXStart() and t.gX() <= o.gXStop()):
                     #print("obstacle hit!")
                     hit_obstacle = True
                     gP.targets.remove(t)
@@ -252,11 +254,11 @@ def main():
 
             if not hit_obstacle:
                 # check y- and x-coordinates of target and player, ycheck so that you can jump over a target without getting hit
-                if (t.gY() >= gP.ycoor and t.gY() < gP.ycoor + car_height) and  (t.gX() > gP.xcoor and t.gX() < gP.xcoor + gP.car_width):
+                if (t.gY() >= player.gY() and t.gY() < player.gY() + player.gHght()) and  (t.gX() > player.gX() and t.gX() < player.gX() + player.gWdth()):
                     #print("player hit!")
                     gP.lives = 0
                 # falling
-                elif t.gY() + 5 < gP.y_max+car_height:
+                elif t.gY() + 5 < gP.y_max+player.gHght():
                     t.sY(t.gY()+5)
                     draw_bloc(t.gCol(), colors, t.gX(), t.gY()-t.gHght(), t.gWdth(), t.gHght(), pg, gameDisplay)
                 # hits ground
@@ -267,11 +269,11 @@ def main():
                     gP.targets.remove(t)
 
         # Player
-        mv_bloc(car, gP.xcoor, gP.ycoor, gameDisplay)
+        draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)    
 
         # Obstacles
         for o in gP.obstacles:
-            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+car_height-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
+            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
         
         # Explosions
         for e in gP.explosions:
@@ -279,7 +281,7 @@ def main():
                 gP.explosions.remove(e)
             else:
                 # '-10' bei Koordinate empirisch gefunden
-                mv_bloc(gP.explosion_images[e.gState()-1] , e.gX()-10, e.gY()-10, gameDisplay)
+                draw_image(gP.explosion_images[e.gState()-1] , e.gX()-10, e.gY()-10, gameDisplay)
                 e.sState(e.gState()+1)
         
         pg.display.update()
