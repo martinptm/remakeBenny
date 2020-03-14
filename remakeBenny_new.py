@@ -22,7 +22,7 @@ Simultion Sprung (Herleitung siehe 'calcAccel.py'):
     a = 356
     y(t) = y_max - v0 * t + 0.5 a * t²
     
-
+OS-Pfad-Sachen: https://stackoverflow.com/questions/2632205/how-to-count-the-number-of-files-in-a-directory-using-python
 """
 
 import numpy as np
@@ -48,6 +48,8 @@ def handleEvent(player, event, pg, gP):
             gP.ml = False
         elif event.key == pg.K_UP:
             gP.start_jump = False
+        elif event.key == pg.K_SPACE:
+            gP.throw_up = False
                     
     if event.type == pg.KEYDOWN:
         if event.key == pg.K_UP:
@@ -61,9 +63,34 @@ def handleEvent(player, event, pg, gP):
             gP.ml = True
             gP.mr = False
         elif event.key == pg.K_SPACE:
-            #laser at left and right side of the player
-            gP.lasers.append( Laser(player.gX(), player.gY(), 'red'))
-            gP.lasers.append( Laser(player.gX()+player.gWdth(), player.gY(), 'red'))
+            #laser at left and right side of the player (extra shifts found by testing)
+            gP.lasers.append( Laser(player.gX()+15, player.gY(), 'red'))
+            gP.lasers.append( Laser(player.gX()+player.gWdth()-20, player.gY(), 'red'))
+            gP.throw_up = True
+
+def choosefig(player, gameDisplay, cou, gP):
+
+    c = 0
+    if cou%2 ==0: 
+        c = 1
+
+    # Throw up sth
+    if gP.throw_up:
+        player.sImage(gP.throw_images[c])
+    # jumping
+    elif gP.ychange < 0:
+        player.sImage(gP.jump_images[c])
+    # falling
+    elif gP.ychange > 0:
+        player.sImage(gP.fall_images[c])
+    # moving
+    elif gP.xchange != 0:
+        player.sImage(gP.walk_images[c])
+    # standing 
+    else:
+        player.sImage(gP.stand_images[0])
+
+    draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
 
 def main():
     
@@ -83,19 +110,21 @@ def main():
 
     clock = pg.time.Clock()
     
-    car = pg.image.load('racecar.png')
-    car_size = car.get_rect().size
-    gP.car_width = car_size[0]
-    car_height = car_size[1]
+    # car = pg.image.load('racecar.png')
+    # car_size = car.get_rect().size
+    # gP.car_width = car_size[0]
+    #car_height = car_size[1]
+    #print(car_size)
 
-    player = Player(car, car_size[0],  car_size[1], gP.y_max)
+   
     
-    # Bilder laden und auf Größe 50x50px skalieren
-    for c in range(1,13):
-        im = pg.transform.scale(pg.image.load('./Images_Explosion/' + str(c) + '.png'), (50, 50))
-        gP.explosion_images.append(im)
-          
-    
+    # # Bilder laden und auf Größe 50x50px skalieren
+    # for c in range(1,13):
+    #     im = pg.transform.scale(pg.image.load('./images/explosion/' + str(c) + '.png'), (50, 50))
+    #     gP.explosion_images.append(im)
+    load_Images(gP, pg)
+
+    player = Player(gP.stand_images[0], 100,  100, gP.y_max)
     
     (a,v0) = calcAandV0(.5, gP.jumpheight)
     
@@ -156,14 +185,15 @@ def main():
                 if player.gY() < gP.y_max - gP.obstacles[c].gHeight():
                     # Fall wenn höher als Hinderniss und noch im Sprung
                     pass
-                elif gP.start_jump and ychange==0:
+                elif gP.start_jump and gP.ychange==0:
                     # Fall wenn Absprung auf Hindernis
                     pass
-                elif player.gY() - ychange <= gP.y_max - gP.obstacles[c].gHeight() and ychange >= 0:
+                elif player.gY() - gP.ychange <= gP.y_max - gP.obstacles[c].gHeight() and gP.ychange >= 0:
                     # Fall, dass auf dem Hindernis, nur möglich wenn nicht an Höhe gewinnend
                     player.sY(gP.y_max - gP.obstacles[c].gHeight())
                     gP.t = 0
                     gP.jump = False
+                    gP.ychange = 0
                 else: 
                     # Fall, dass im Sprung gegen eine Seite des Hindernisses stößt
                     gP.xchange = - gP.xchange
@@ -185,8 +215,8 @@ def main():
             # Abl. nach t:
             # -v0 + a*gP.t
             # flexible Formulierung ohne Abhändigkeit von Absprunghöhe
-            ychange =  1/gP.FPS * (-v0 + a*gP.t)
-            player.sY(player.gY() + ychange)
+            gP.ychange =  1/gP.FPS * (-v0 + a*gP.t)
+            player.sY(player.gY() + gP.ychange)
             # alte Formulierung mit festem Startpunkt
             # gP.ycoor = gP.y_max - v0 * gP.t + 0.5 * a * gP.t**2
             
@@ -195,17 +225,20 @@ def main():
                 player.sY(gP.y_max)
                 gP.jump = False
                 gP.t = 0
+                gP.ychange = 0
 
         # Bedingung wenn auf Block war, aber nun nicht mehr ist
         if not gP.jump and not gP.at_x_of_obst  and player.gY() < gP.y_max:
             gP.t += 1/gP.FPS
             #gP.ycoor = gP.y_max - gP.obstacles[c].gHeight() + 0.5 * a * gP.t**2  # veränderte Bewegungsgleichung, da kein Absprung
-            ychange =  1/gP.FPS * (a*gP.t)  # veränderte Bewegungsgleichung, da kein Absprung
-            player.sY(player.gY() + ychange)
+            gP.ychange =  1/gP.FPS * (a*gP.t)  # veränderte Bewegungsgleichung, da kein Absprung
+            player.sY(player.gY() + gP.ychange)
 
+            # Landen auf Boden
             if player.gY() > gP.y_max:
                 player.sY(gP.y_max)
                 gP.t = 0
+                gP.ychange = 0
                 
         # Ebenen:
         #   - Hintergrund
@@ -269,7 +302,7 @@ def main():
                     gP.targets.remove(t)
 
         # Player
-        draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)    
+        choosefig(player, gameDisplay, cou, gP)    
 
         # Obstacles
         for o in gP.obstacles:

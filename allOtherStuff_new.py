@@ -1,3 +1,6 @@
+import fnmatch
+import os
+
 class Colors():
     def __init__(self):
         self.col = {'black': (0,0,0),
@@ -29,6 +32,22 @@ def draw_bloc(color, colors, xcoor, ycoor, wdth, hgth, pg, gameDisplay):
 def draw_image(bl, x, y, gameDisplay):
         gameDisplay.blit(bl, (x,y))
 
+def load_Images(gP, pg):
+    # for c in range(1,13):
+    #     im = pg.transform.scale(pg.image.load('./images/explosion/' + str(c) + '.png'), (50, 50))
+    #     gP.explosion_images.append(im)
+    paths = ('explosion', 'earth_stand', 'earth_throw', 'earth_walk', 'earth_jump', 'earth_fall')
+    params = (gP.explosion_images, gP.stand_images, gP.throw_images, gP.walk_images, gP.jump_images, gP.fall_images)
+  
+    for c in range(0, len(paths)):
+        path = './Images/' + paths[c] +'/'
+        image_files = fnmatch.filter(os.listdir(path), '*.png')
+        if c == 0:
+            size = (50,50)
+        else:
+            size = (100, 100)
+        [params[c].append(pg.transform.scale(pg.image.load(path + image_file), size)) for image_file in image_files]
+
 class gameParams():
     def __init__(self):
         self.disp_wdth = 600
@@ -39,15 +58,11 @@ class gameParams():
         # "Bodenhöhe"
         self.y_max = self.disp_hght - 100
     
-        # Startkoordinaten
-        #self.xcoor = 0
-        #self.ycoor = self.y_max
-        #self.car_width = 0
-    
         self.t = 0
     
         self.step_size = 3
         self.xchange = 0
+        self.ychange = 0
         
         self.jump = False
     
@@ -75,6 +90,14 @@ class gameParams():
         self.targets = []
         self.explosions = []
         self.explosion_images = []
+
+        self.stand_images = []
+        self.throw_images = []
+        self.walk_images = []
+        self.jump_images = []
+        self.fall_images = []
+
+        self.throw_up = False
 
         self.lives = 10
 
@@ -194,3 +217,5 @@ class Player():
         self.x_coor = x
     def sY(self, y):
         self.y_coor = y
+    def sImage(self, image):
+        self.image = image
