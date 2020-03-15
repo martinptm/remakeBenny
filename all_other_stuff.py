@@ -10,8 +10,6 @@ class Colors():
               }
         
     def getColor(self, color):
-        # Scheinbar kann mit .get() und [] auf Elemente in einem Dictionary
-        # zugegriffen werden.
         if color not in self.col:
             print("Farbe nicht verfügbar!, DEFAULT: red")
             returncolor = self.col.get('red')
@@ -26,13 +24,11 @@ def changeMoveDown(movedown):
     else:
         return True
     
-#def draw_bloc(color, colors, xcoor, ycoor, wdth, hgth, pg, gameDisplay):
-#    pg.draw.rect(gameDisplay, colors.getColor(color), [xcoor, ycoor, wdth, hgth])
-    
 def draw_image(bl, x, y, gameDisplay):
         gameDisplay.blit(bl, (x,y))
 
 def load_Images(gP, pg):
+    # read in all frames needed in animations
     paths = ('co2',
         'earth_stand', 
         'earth_throw', 
@@ -90,50 +86,45 @@ def load_Images(gP, pg):
                 params[c][im] = pg.transform.scale(pg.image.load(path + image_file), sizes[c])
         else:
             [params[c].append(pg.transform.scale(pg.image.load(path + image_file), sizes[c])) for image_file in image_files]
-            #[print(image_file) for image_file in image_files]
 
 class gameParams():
     def __init__(self):
         self.disp_wdth = 600
         self.disp_hght = 600
-    
         self.FPS = 60
         
-        # "Bodenhöhe"
+        # ground-level
         self.y_max = self.disp_hght - 100
     
+        # time-parameter for jump-simulation
         self.t = 0
     
+        # parameters for movement of player
         self.step_size = 6
         self.xchange = 0
         self.ychange = 0
-        
         self.jump = False
-    
         self.jumpheight = 100
         self.jumpstep = 5
-    
         self.onGround = True
         self.mr = False
         self.ml = False
         self.start_jump = False
         
+        # parameters for interactions with obstacles
         self.aboveObstacle = False
-        self.obstacles = []
         self.at_x_of_obst = False
     
-        # Parameter, wenn gameDisplay geschlossen wird
+        # parameter to quit game
         self.quitGame = False
-    
-        self.bloc_height = 60
-        self.bloc_width = 90-20
         
-        self.onObstacle = False
-
-        self.lasers = []
+        # lists for interacitve stuff except the player itself
+        self.obstacles = []
+        self.things_to_throw = []
         self.targets = []
-        self.explosions = []
+        self.saved_animals = []
 
+        # lists and dicts to store all frames for animations
         self.co2_images = []
         self.stand_images = []
         self.throw_images = []
@@ -148,16 +139,15 @@ class gameParams():
         self.counter_fruits_images = {}
         self.rescued_species_image = []
 
+        # parameter if player throws a fruit
         self.throw_up = False
-
+        # counter for GT of co2 left until 2° warming will be exceeded
         self.lives = 10
+        #counter of fruits in basket
         self.fruits_left = 6
+        # counter for saved species/ avoided co2-sources
         self.species_saved = 0
 
-        self.targetWidth = 20
-
-    def gTargetWidth(self):
-        return self.targetWidth
 
 class an_obj():
     def __init__(self, x, y, wdth, hght, images, state):
@@ -178,7 +168,6 @@ class an_obj():
     def gH(self):
         return self._hght
     def gImage(self):
-        #print("self._images: ", self._images)
         return self._images[self._state]
     def gState(self):
         return self._state

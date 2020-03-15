@@ -38,6 +38,7 @@ def handleEvent(player, event, pg, gP):
     elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:  # äquivalent wäre == 27
         gP.quitGame = True
                 
+    # detect if one of the relevant keys is released
     if event.type == pg.KEYUP:
         if event.key == pg.K_RIGHT:
             gP.mr = False
@@ -48,6 +49,7 @@ def handleEvent(player, event, pg, gP):
         elif event.key == pg.K_SPACE:
             gP.throw_up = False
                     
+    # detect if one of the relevant keys is pressed
     if event.type == pg.KEYDOWN:
         if event.key == pg.K_UP:
             gP.start_jump = True
@@ -60,17 +62,19 @@ def handleEvent(player, event, pg, gP):
             gP.ml = True
             gP.mr = False
         elif event.key == pg.K_SPACE:
-            #laser at left and right side of the player (extra shifts found by testing) 
+            # throw things at left and right side of the player (extra shifts found by testing) 
+            # (only possible if the player has 'fruits' to throw in his basket)
             r = ran.randrange(0, len(gP.things_throw_images))
             if gP.fruits_left > 0:
                 gP.fruits_left -= 1
-                gP.lasers.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
+                gP.things_to_throw.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
             if gP.fruits_left > 0:
                 gP.fruits_left -= 1
-                gP.lasers.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
+                gP.things_to_throw.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
             gP.throw_up = True
 
 def choosefig(player, gameDisplay, cou, gP):
+    # choose correct type of player-figure according to its current movement/action
     # Throw up sth
     if gP.throw_up:
         player.sImages(gP.throw_images)
@@ -86,9 +90,8 @@ def choosefig(player, gameDisplay, cou, gP):
     # standing 
     else:
         player.sImages(gP.stand_images)
-
+    # increase state to choose next frame from the matching sequence of images according to the current movement
     player.sState(player.gState()+1)
-
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
 
 def main(): 
@@ -98,8 +101,7 @@ def main():
     """ 
     pg.init()
 
-    pg.font.init() # you have to call this at the start, 
-                   # if you want to use this module.
+    pg.font.init()
     myfont = pg.font.SysFont('Comic Sans MS', 30)
     
     gP = gameParams()
@@ -111,44 +113,50 @@ def main():
 
     clock = pg.time.Clock()
     
+    # import all necessary images/frames for the animations and things that are displayed
     load_Images(gP, pg)
 
+    # initialise player-figure
     player = an_obj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
     
+    # calculate parameters for pyhsical simulation of a jump with specified boundary-conditions (max. time and jumping-height)
     (a,v0) = calcAandV0(.5, gP.jumpheight)
     
+    # place an obstacle at a random position, '+20'-width found by trial to look better
     xPosBloc = ran.randrange(gP.disp_wdth/5, (4/5)*gP.disp_wdth)
     gP.obstacles.append(an_obj(xPosBloc, gP.y_max, 90, 60, gP.obstacle_images, 0))
-    
-    for o in gP.obstacles:
-        # '+20'-width found by trial
-        draw_image(o.gImage(), o.gX(), gP.y_max+player.gH()-o.gH(), gameDisplay)
+    [draw_image(o.gImage(), o.gX(), gP.y_max+player.gH()-o.gH(), gameDisplay) for o in gP.obstacles]
 
-    # Initialsiation Ausgangsposition 
+    # set starting-position of player
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
 
+    # counter to track iterations of frames in the game loop
     cou = 0
 
+    # game loop
     while not gP.quitGame:
-
-        # maybe add some stochastics in here
-        r = ran.randrange(0, 8)
         cou += 1
+
+        # increase fruits in basket regulary
         if cou%30 == 0 and gP.fruits_left < 6:
             gP.fruits_left += 1
+
+        # rate of appearance increases with more succes in the game (small level of uncertainty comes into play ;D)
+        r = ran.randrange(0, 8)
         if cou+r >= 70 or (gP.species_saved >= 5 and cou+r >= 50):
             target_nr = ran.randrange(0, len(gP.target_images))
-            gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 20, 20, gP.target_images[target_nr], 0))
+            gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - 20), 0, 20, 20, gP.target_images[target_nr], 0))
             cou = 0
         
-        if player.gY() == gP.y_max:# or (gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height):
+        # check if player is at lowes possible point 
+        if player.gY() == gP.y_max:
             gP.onGround = True
         else:
             gP.onGround = False
             
+        # detect and handle user-input and set movement accordingly
         for event in pg.event.get():
-            handleEvent(player, event, pg, gP)
-                      
+            handleEvent(player, event, pg, gP)      
         if gP.onGround or (gP.at_x_of_obst and not gP.jump):
             if gP.start_jump:
                 gP.jump = True
@@ -159,71 +167,59 @@ def main():
             else:
                 gP.xchange = 0
 
-        # Zähler indentifiziert das aktuell relevante Hinderniss
-        c = 0
+        # check if player interacts with the obstacle, '-20' to look better
         for c in range(0, len(gP.obstacles)):
-            # '-20' wegen Aussehen
             if player.gX() + gP.xchange > gP.obstacles[c].gX() - player.gW() and player.gX() + gP.xchange < gP.obstacles[c].gX() + gP.obstacles[c].gW() -20:
                 gP.at_x_of_obst = True
                 break
             else:
-                gP.at_x_of_obst = False
-           
-        # Interaktion mit einem Hindernis 
+                gP.at_x_of_obst = False        
+        # interact with the obstacle
         if gP.at_x_of_obst:
-
+            # cannot walk through the obsacle
             if gP.onGround:
                 gP.xchange = 0  
-            elif gP.jump: # 
+            elif gP.jump: 
+                # keep falling
                 if player.gY() < gP.y_max - gP.obstacles[c].gH():
-                    # Fall wenn höher als Hinderniss und noch im Sprung
                     pass
+                # jump from obstacle
                 elif gP.start_jump and gP.ychange==0:
-                    # Fall wenn Absprung auf Hindernis
                     pass
+                # land and stand on the obstacle, reset t so if the obstacle is left, the physical fall/jump-simualtion is correct
                 elif player.gY() - gP.ychange <= gP.y_max - gP.obstacles[c].gH() and gP.ychange >= 0:
-                    # Fall, dass auf dem Hindernis, nur möglich wenn nicht an Höhe gewinnend
                     player.sY(gP.y_max - gP.obstacles[c].gH())
                     gP.t = 0
                     gP.jump = False
                     gP.ychange = 0
+                # bounce off obstacle-side
                 else: 
-                    # Fall, dass im Sprung gegen eine Seite des Hindernisses stößt
                     gP.xchange = - gP.xchange
 
-        # sonst durch Spielfeld begrenzt
-        # '-10' wegen Aussehen
+        # limits of playing-field, '-10' to look better
         if player.gX() + gP.xchange <= gP.disp_wdth - player.gW() and player.gX() + gP.xchange >= 0-15:
             player.sX(player.gX() + gP.xchange)
         elif not gP.onGround:
             gP.xchange = - gP.xchange
 
-        # das so eig. schön, da springen von Hinderniss dann höher usw.
+        # jump-simulation (independent of starting point since change of position and not the absolute position is calculated)
         if gP.jump:  
             gP.t += 1/gP.FPS    
-            # Bewegungsgleichung muss so abgeändert werden, dass unabh. von Starthöhe, also Berechnung von y-Change,
-            # sodass ycoor = ycoor + ychange 
-            # oder Parameter für Absprunghöhenstart
-            # Abl. nach t:
-            # -v0 + a*gP.t
-            # flexible Formulierung ohne Abhändigkeit von Absprunghöhe
             gP.ychange =  1/gP.FPS * (-v0 + a*gP.t)
-            player.sY(player.gY() + gP.ychange)
-            
-            # Landen auf Boden 
+            player.sY(player.gY() + gP.ychange)   
+            # land on the ground 
             if player.gY() > gP.y_max:
                 player.sY(gP.y_max)
                 gP.jump = False
                 gP.t = 0
                 gP.ychange = 0
 
-        # Bedingung wenn auf Block war, aber nun nicht mehr ist
+        # if player stood on obstacle and now leaving it. No initial jump, only falling down.
         if not gP.jump and not gP.at_x_of_obst  and player.gY() < gP.y_max:
             gP.t += 1/gP.FPS
-            gP.ychange =  1/gP.FPS * (a*gP.t)  # veränderte Bewegungsgleichung, da kein Absprung
+            gP.ychange =  1/gP.FPS * (a*gP.t) 
             player.sY(player.gY() + gP.ychange)
-
-            # Landen auf Boden
+            # land on the ground 
             if player.gY() > gP.y_max:
                 player.sY(gP.y_max)
                 gP.t = 0
@@ -237,43 +233,39 @@ def main():
         #   - Obstacle
         #   - Explosion
 
-        # Hintergrund
+        # draw background
         gameDisplay.fill(colors.getColor('blue'))
 
-        # Laser
-        for l in gP.lasers:  
-
+        # fruits to throw
+        for f in gP.things_to_throw:  
             target_hit = False
+            # check if a target (co2-source) is hit
             for t in gP.targets:
-                if ( l.gY() <= t.gY()+t.gH() ) and  ( l.gX()+l.gW() >= t.gX() and l.gX() < t.gX()+t.gW() ):
+                if ( f.gY() <= t.gY()+t.gH() ) and  ( f.gX()+f.gW() >= t.gX() and f.gX() < t.gX()+t.gW() ):
                     target_hit = True
                     gP.species_saved += 1
                     r = ran.randrange(0, len(gP.things_hit_images))
-                    gP.explosions.append(an_obj(l.gX(), l.gY(), 50, 50, gP.things_hit_images[r], 0))
+                    gP.saved_animals.append(an_obj(f.gX(), f.gY(), 50, 50, gP.things_hit_images[r], 0))
                     gP.targets.remove(t)
-                    gP.lasers.remove(l)
+                    gP.things_to_throw.remove(f)
                     break
-
+            # if still on playing-field contionue throwing-animation
             if not target_hit:
-                if l.gY() < 0:
-                    gP.lasers.remove(l)
+                if f.gY() < 0:
+                    gP.things_to_throw.remove(f)
                 else: 
-                    #draw_bloc(l.gCol(), colors, l.gX(), l.gY()-l.gHght(), l.gWdth(), l.gHght(), pg, gameDisplay)
-                    draw_image(l.gImage(), l.gX(), l.gY()-l.gH(), gameDisplay)
-                    l.sY(l.gY()-20)
-                    l.sState(l.gState()+1)
+                    draw_image(f.gImage(), f.gX(), f.gY()-f.gH(), gameDisplay)
+                    f.sY(f.gY()-20)
+                    f.sState(f.gState()+1)
 
         # Targets
         for t in gP.targets:
-
             for o in gP.obstacles:  
                 # check if target hits an obstacle
                 if t.gY() >= gP.y_max + (player.gH() - o.gH()) and (t.gX() + t.gW() >= o.gX() and t.gX() <= o.gX() + o.gW()):
-                    #print("obstacle hit!")
                     hit_obstacle = True
                     gP.targets.remove(t)
-                    gP.explosions.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
-                    #gP.explosions.append(Explosion(t.gX(), t.gY()-30))
+                    gP.saved_animals.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
                     gP.lives -= 1
                     break
                 else:
@@ -282,38 +274,33 @@ def main():
             if not hit_obstacle:
                 # check y- and x-coordinates of target and player, ycheck so that you can jump over a target without getting hit
                 if (t.gY() >= player.gY() and t.gY() < player.gY() + player.gH()) and  (t.gX() > player.gX() and t.gX() < player.gX() + player.gW()):
-                    #print("player hit!")
                     gP.lives = 0
                 # falling
                 elif t.gY() + 5 < gP.y_max+player.gH()-t.gH():
                     t.sY(t.gY()+5)
-                    #draw_bloc(t.gCol(), colors, t.gX(), t.gY()-t.gHght(), t.gWdth(), t.gHght(), pg, gameDisplay)
                     draw_image(t.gImage(), t.gX()-t.gW(), t.gY()-t.gH(), gameDisplay)
                     t.sState(t.gState()+1)
                 # hits ground
                 else:
                     gP.lives -= 1
-                    #gP.explosions.append(Explosion(t.gX(), t.gY()-30))
-                    gP.explosions.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
+                    gP.saved_animals.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
                     gP.targets.remove(t)
 
-        # Player
+        # chose game-character matching the current movement
         choosefig(player, gameDisplay, cou, gP)    
 
-        # Obstacles
-        for o in gP.obstacles:
-            # '+20'-width found by trial
-            #draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width+20, o.gHeight(), pg, gameDisplay)
-            draw_image(o.gImage(), o.gX(), o.gY()+20, gameDisplay)
-        # Explosions
-        for e in gP.explosions:
-            if e.gState() == e.gNImages()-1:
-                gP.explosions.remove(e)
-            else:
-                # '-10' bei Koordinate empirisch gefunden
-                draw_image(e.gImage(), e.gX()-10, e.gY()-10, gameDisplay)
-                e.sState(e.gState()+1)
+        # draw obstacles, '+20'-width found by trial to look better
+        [draw_image(o.gImage(), o.gX(), o.gY()+20, gameDisplay) for o in gP.obstacles]
 
+        # draw saved animals/ continue animation or quit the animation when all sequences done, '+20'-width found to look better
+        for animal in gP.saved_animals:
+            if animal.gState() == animal.gNImages()-1:
+                gP.saved_animals.remove(animal)
+            else:
+                draw_image(animal.gImage(), animal.gX()-10, animal.gY()-10, gameDisplay)
+                animal.sState(animal.gState()+1)
+
+        # show stats
         draw_image(gP.counter_co2_images[str(gP.lives*60)], 500, 0, gameDisplay)
         draw_image(gP.counter_fruits_images[str(gP.fruits_left)], 500, 100, gameDisplay)
         draw_image(gP.rescued_species_image[0], 500, 200, gameDisplay)
@@ -332,7 +319,7 @@ def main():
     # Spiel beenden und Programm verlassen 
     pg.quit()
     quit()
-    
+
 
 if __name__ == "__main__":
     main()
