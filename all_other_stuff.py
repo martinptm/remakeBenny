@@ -42,7 +42,10 @@ def load_Images(gP, pg):
         'obstacles', 
         'things_throw',
         'targets',
-        'things_hit')
+        'things_hit',
+        'counter_co2',
+        'counter_fruits',
+        'rescued_species')
     params = (gP.co2_images,
         gP.stand_images, 
         gP.throw_images, 
@@ -52,7 +55,10 @@ def load_Images(gP, pg):
         gP.obstacle_images,
         gP.things_throw_images,
         gP.target_images,
-        gP.things_hit_images)
+        gP.things_hit_images,
+        gP.counter_co2_images,
+        gP.counter_fruits_images,
+        gP.rescued_species_image)
     sizes = ((50,50),
             (100,100),
             (100,100),
@@ -62,7 +68,10 @@ def load_Images(gP, pg):
             (90,60),
             (20,20),
             (50,50),
-            (50,50)) 
+            (50,50),
+            (100,60),
+            (100,60),
+            (100,100)) 
     for c in range(0, len(paths)):
         path = './Images/' + paths[c] +'/'
         image_files = fnmatch.filter(os.listdir(path), '*.png')
@@ -70,15 +79,18 @@ def load_Images(gP, pg):
             for image_file in image_files:
                 t = []
                 for c2 in range(0,20): 
-                    #print("image_file: ", image_file)
                     if image_file == ('parrot.png'):
-                        print("BBBBBBIIIIIRRRRD")
                         t.append(pg.transform.rotate(pg.transform.scale(pg.image.load(path + image_file), sizes[c]), -c2*18))
                     else:
                         t.append(pg.transform.rotate(pg.transform.scale(pg.image.load(path + image_file), sizes[c]), c2*18))
                 params[c].append(t)
+        elif c == 10 or c == 11:
+            for image_file in image_files:
+                im = image_file.replace(".png", "")
+                params[c][im] = pg.transform.scale(pg.image.load(path + image_file), sizes[c])
         else:
             [params[c].append(pg.transform.scale(pg.image.load(path + image_file), sizes[c])) for image_file in image_files]
+            #[print(image_file) for image_file in image_files]
 
 class gameParams():
     def __init__(self):
@@ -92,7 +104,7 @@ class gameParams():
     
         self.t = 0
     
-        self.step_size = 3
+        self.step_size = 6
         self.xchange = 0
         self.ychange = 0
         
@@ -132,10 +144,15 @@ class gameParams():
         self.things_throw_images = []
         self.target_images = []
         self.things_hit_images = []
+        self.counter_co2_images = {}
+        self.counter_fruits_images = {}
+        self.rescued_species_image = []
 
         self.throw_up = False
 
         self.lives = 10
+        self.fruits_left = 6
+        self.species_saved = 0
 
         self.targetWidth = 20
 

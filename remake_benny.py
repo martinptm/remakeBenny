@@ -62,8 +62,12 @@ def handleEvent(player, event, pg, gP):
         elif event.key == pg.K_SPACE:
             #laser at left and right side of the player (extra shifts found by testing) 
             r = ran.randrange(0, len(gP.things_throw_images))
-            gP.lasers.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
-            gP.lasers.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
+            if gP.fruits_left > 0:
+                gP.fruits_left -= 1
+                gP.lasers.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
+            if gP.fruits_left > 0:
+                gP.fruits_left -= 1
+                gP.lasers.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
             gP.throw_up = True
 
 def choosefig(player, gameDisplay, cou, gP):
@@ -93,6 +97,10 @@ def main():
     Oder Menü-Auswahl?
     """ 
     pg.init()
+
+    pg.font.init() # you have to call this at the start, 
+                   # if you want to use this module.
+    myfont = pg.font.SysFont('Comic Sans MS', 30)
     
     gP = gameParams()
     colors = Colors()
@@ -124,8 +132,11 @@ def main():
     while not gP.quitGame:
 
         # maybe add some stochastics in here
+        r = ran.randrange(0, 8)
         cou += 1
-        if cou == 120:
+        if cou%30 == 0 and gP.fruits_left < 6:
+            gP.fruits_left += 1
+        if cou+r >= 70 or (gP.species_saved >= 5 and cou+r >= 50):
             target_nr = ran.randrange(0, len(gP.target_images))
             gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 20, 20, gP.target_images[target_nr], 0))
             cou = 0
@@ -236,6 +247,7 @@ def main():
             for t in gP.targets:
                 if ( l.gY() <= t.gY()+t.gH() ) and  ( l.gX()+l.gW() >= t.gX() and l.gX() < t.gX()+t.gW() ):
                     target_hit = True
+                    gP.species_saved += 1
                     r = ran.randrange(0, len(gP.things_hit_images))
                     gP.explosions.append(an_obj(l.gX(), l.gY(), 50, 50, gP.things_hit_images[r], 0))
                     gP.targets.remove(t)
@@ -273,7 +285,7 @@ def main():
                     #print("player hit!")
                     gP.lives = 0
                 # falling
-                elif t.gY() + 5 < gP.y_max+player.gH():
+                elif t.gY() + 5 < gP.y_max+player.gH()-t.gH():
                     t.sY(t.gY()+5)
                     #draw_bloc(t.gCol(), colors, t.gX(), t.gY()-t.gHght(), t.gWdth(), t.gHght(), pg, gameDisplay)
                     draw_image(t.gImage(), t.gX()-t.gW(), t.gY()-t.gH(), gameDisplay)
@@ -301,6 +313,12 @@ def main():
                 # '-10' bei Koordinate empirisch gefunden
                 draw_image(e.gImage(), e.gX()-10, e.gY()-10, gameDisplay)
                 e.sState(e.gState()+1)
+
+        draw_image(gP.counter_co2_images[str(gP.lives*60)], 500, 0, gameDisplay)
+        draw_image(gP.counter_fruits_images[str(gP.fruits_left)], 500, 100, gameDisplay)
+        draw_image(gP.rescued_species_image[0], 500, 200, gameDisplay)
+        textsurface = myfont.render(str(gP.species_saved), False, (0, 0, 0))
+        gameDisplay.blit(textsurface,(545,275))
         
         pg.display.update()
         
