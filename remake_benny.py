@@ -24,7 +24,6 @@ Simultion Sprung (Herleitung siehe 'calcAccel.py'):
     
 OS-Pfad-Sachen: https://stackoverflow.com/questions/2632205/how-to-count-the-number-of-files-in-a-directory-using-python
 """
-
 import numpy as np
 import pygame as pg
 import random as ran
@@ -33,8 +32,6 @@ from all_other_stuff import *
 from calcAccel import calcAandV0
 
 def handleEvent(player, event, pg, gP):
-    #print(event)
-
     # detect if gamewindow is closed or esc-key is pressed
     if event.type == pg.QUIT:
         gP.quitGame = True
@@ -63,42 +60,38 @@ def handleEvent(player, event, pg, gP):
             gP.ml = True
             gP.mr = False
         elif event.key == pg.K_SPACE:
-            #laser at left and right side of the player (extra shifts found by testing)
-            gP.lasers.append( Laser(player.gX()+15, player.gY(), 'red'))
-            gP.lasers.append( Laser(player.gX()+player.gWdth(), player.gY(), 'red'))
+            #laser at left and right side of the player (extra shifts found by testing) 
+            r = ran.randrange(0, len(gP.things_throw_images))
+            gP.lasers.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
+            gP.lasers.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
             gP.throw_up = True
 
 def choosefig(player, gameDisplay, cou, gP):
-
-    c = 0
-    if cou%2 ==0: 
-        c = 1
-
     # Throw up sth
     if gP.throw_up:
-        player.sImage(gP.throw_images[c])
+        player.sImages(gP.throw_images)
     # jumping
     elif gP.ychange < 0:
-        player.sImage(gP.jump_images[c])
+        player.sImages(gP.jump_images)
     # falling
     elif gP.ychange > 0:
-        player.sImage(gP.fall_images[c])
+        player.sImages(gP.fall_images)
     # moving
     elif gP.xchange != 0:
-        player.sImage(gP.walk_images[c])
+        player.sImages(gP.walk_images)
     # standing 
     else:
-        player.sImage(gP.stand_images[0])
+        player.sImages(gP.stand_images)
+
+    player.sState(player.gState()+1)
 
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
 
-def main():
-    
+def main(): 
     """
     Idee: Try/Catch für Entscheidung ob mit JoyStick oder Tastatur?
     Oder Menü-Auswahl?
-    """
-    
+    """ 
     pg.init()
     
     gP = gameParams()
@@ -110,31 +103,18 @@ def main():
 
     clock = pg.time.Clock()
     
-    # car = pg.image.load('racecar.png')
-    # car_size = car.get_rect().size
-    # gP.car_width = car_size[0]
-    #car_height = car_size[1]
-    #print(car_size)
-    # # Bilder laden und auf Größe 50x50px skalieren
-    # for c in range(1,13):
-    #     im = pg.transform.scale(pg.image.load('./images/explosion/' + str(c) + '.png'), (50, 50))
-    #     gP.explosion_images.append(im)
     load_Images(gP, pg)
 
-    player = Player(gP.stand_images[0], 80,  80, gP.y_max)
+    player = an_obj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
     
     (a,v0) = calcAandV0(.5, gP.jumpheight)
     
     xPosBloc = ran.randrange(gP.disp_wdth/5, (4/5)*gP.disp_wdth)
-    gP.obstacles.append(Obstacle(xPosBloc, xPosBloc+gP.bloc_width, gP.bloc_height, 'red'))
-    #xPosBloc = ran.randrange(gP.disp_wdth/5, (4/5)*gP.disp_wdth)
-    #gP.obstacles.append(Obstacle(xPosBloc, xPosBloc+gP.bloc_width, gP.bloc_height, 'red'))
+    gP.obstacles.append(an_obj(xPosBloc, gP.y_max, 90, 60, gP.obstacle_images, 0))
     
     for o in gP.obstacles:
         # '+20'-width found by trial
-        draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width+20, o.gHeight(), pg, gameDisplay)
-        #draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
-    
+        draw_image(o.gImage(), o.gX(), gP.y_max+player.gH()-o.gH(), gameDisplay)
 
     # Initialsiation Ausgangsposition 
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
@@ -145,8 +125,9 @@ def main():
 
         # maybe add some stochastics in here
         cou += 1
-        if cou == 180:
-            gP.targets.append(Target(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 'green', gP))
+        if cou == 120:
+            target_nr = ran.randrange(0, len(gP.target_images))
+            gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - gP.gTargetWidth()), 0, 20, 20, gP.target_images[target_nr], 0))
             cou = 0
         
         if player.gY() == gP.y_max:# or (gP.aboveObstacle and gP.ycoor > gP.y_max - gP.bloc_height):
@@ -170,7 +151,8 @@ def main():
         # Zähler indentifiziert das aktuell relevante Hinderniss
         c = 0
         for c in range(0, len(gP.obstacles)):
-            if player.gX() + gP.xchange > gP.obstacles[c].gXStart() - player.gWdth() and player.gX() + gP.xchange < gP.obstacles[c].gXStop():
+            # '-20' wegen Aussehen
+            if player.gX() + gP.xchange > gP.obstacles[c].gX() - player.gW() and player.gX() + gP.xchange < gP.obstacles[c].gX() + gP.obstacles[c].gW() -20:
                 gP.at_x_of_obst = True
                 break
             else:
@@ -182,15 +164,15 @@ def main():
             if gP.onGround:
                 gP.xchange = 0  
             elif gP.jump: # 
-                if player.gY() < gP.y_max - gP.obstacles[c].gHeight():
+                if player.gY() < gP.y_max - gP.obstacles[c].gH():
                     # Fall wenn höher als Hinderniss und noch im Sprung
                     pass
                 elif gP.start_jump and gP.ychange==0:
                     # Fall wenn Absprung auf Hindernis
                     pass
-                elif player.gY() - gP.ychange <= gP.y_max - gP.obstacles[c].gHeight() and gP.ychange >= 0:
+                elif player.gY() - gP.ychange <= gP.y_max - gP.obstacles[c].gH() and gP.ychange >= 0:
                     # Fall, dass auf dem Hindernis, nur möglich wenn nicht an Höhe gewinnend
-                    player.sY(gP.y_max - gP.obstacles[c].gHeight())
+                    player.sY(gP.y_max - gP.obstacles[c].gH())
                     gP.t = 0
                     gP.jump = False
                     gP.ychange = 0
@@ -199,16 +181,15 @@ def main():
                     gP.xchange = - gP.xchange
 
         # sonst durch Spielfeld begrenzt
-        if player.gX() + gP.xchange <= gP.disp_wdth - player.gWdth() and player.gX() + gP.xchange >= 0:
+        # '-10' wegen Aussehen
+        if player.gX() + gP.xchange <= gP.disp_wdth - player.gW() and player.gX() + gP.xchange >= 0-15:
             player.sX(player.gX() + gP.xchange)
         elif not gP.onGround:
             gP.xchange = - gP.xchange
 
         # das so eig. schön, da springen von Hinderniss dann höher usw.
-        if gP.jump:
-            
-            gP.t += 1/gP.FPS
-                
+        if gP.jump:  
+            gP.t += 1/gP.FPS    
             # Bewegungsgleichung muss so abgeändert werden, dass unabh. von Starthöhe, also Berechnung von y-Change,
             # sodass ycoor = ycoor + ychange 
             # oder Parameter für Absprunghöhenstart
@@ -217,8 +198,6 @@ def main():
             # flexible Formulierung ohne Abhändigkeit von Absprunghöhe
             gP.ychange =  1/gP.FPS * (-v0 + a*gP.t)
             player.sY(player.gY() + gP.ychange)
-            # alte Formulierung mit festem Startpunkt
-            # gP.ycoor = gP.y_max - v0 * gP.t + 0.5 * a * gP.t**2
             
             # Landen auf Boden 
             if player.gY() > gP.y_max:
@@ -230,7 +209,6 @@ def main():
         # Bedingung wenn auf Block war, aber nun nicht mehr ist
         if not gP.jump and not gP.at_x_of_obst  and player.gY() < gP.y_max:
             gP.t += 1/gP.FPS
-            #gP.ycoor = gP.y_max - gP.obstacles[c].gHeight() + 0.5 * a * gP.t**2  # veränderte Bewegungsgleichung, da kein Absprung
             gP.ychange =  1/gP.FPS * (a*gP.t)  # veränderte Bewegungsgleichung, da kein Absprung
             player.sY(player.gY() + gP.ychange)
 
@@ -256,9 +234,10 @@ def main():
 
             target_hit = False
             for t in gP.targets:
-                if ( l.gY() <= t.gY()+t.gHght() ) and  ( l.gX()+l.gWdth() >= t.gX() and l.gX() < t.gX()+t.gWdth() ):
+                if ( l.gY() <= t.gY()+t.gH() ) and  ( l.gX()+l.gW() >= t.gX() and l.gX() < t.gX()+t.gW() ):
                     target_hit = True
-                    gP.explosions.append(Explosion(l.gX(), l.gY()))
+                    r = ran.randrange(0, len(gP.things_hit_images))
+                    gP.explosions.append(an_obj(l.gX(), l.gY(), 50, 50, gP.things_hit_images[r], 0))
                     gP.targets.remove(t)
                     gP.lasers.remove(l)
                     break
@@ -267,19 +246,22 @@ def main():
                 if l.gY() < 0:
                     gP.lasers.remove(l)
                 else: 
-                    draw_bloc(l.gCol(), colors, l.gX(), l.gY()-l.gHght(), l.gWdth(), l.gHght(), pg, gameDisplay)
+                    #draw_bloc(l.gCol(), colors, l.gX(), l.gY()-l.gHght(), l.gWdth(), l.gHght(), pg, gameDisplay)
+                    draw_image(l.gImage(), l.gX(), l.gY()-l.gH(), gameDisplay)
                     l.sY(l.gY()-20)
+                    l.sState(l.gState()+1)
 
         # Targets
         for t in gP.targets:
 
             for o in gP.obstacles:  
                 # check if target hits an obstacle
-                if t.gY() >= gP.y_max + (player.gHght() - o.gHeight()) and (t.gX() + t.gWdth() >= o.gXStart() and t.gX() <= o.gXStop()):
+                if t.gY() >= gP.y_max + (player.gH() - o.gH()) and (t.gX() + t.gW() >= o.gX() and t.gX() <= o.gX() + o.gW()):
                     #print("obstacle hit!")
                     hit_obstacle = True
                     gP.targets.remove(t)
-                    gP.explosions.append(Explosion(t.gX(), t.gY()-30))
+                    gP.explosions.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
+                    #gP.explosions.append(Explosion(t.gX(), t.gY()-30))
                     gP.lives -= 1
                     break
                 else:
@@ -287,18 +269,20 @@ def main():
 
             if not hit_obstacle:
                 # check y- and x-coordinates of target and player, ycheck so that you can jump over a target without getting hit
-                if (t.gY() >= player.gY() and t.gY() < player.gY() + player.gHght()) and  (t.gX() > player.gX() and t.gX() < player.gX() + player.gWdth()):
+                if (t.gY() >= player.gY() and t.gY() < player.gY() + player.gH()) and  (t.gX() > player.gX() and t.gX() < player.gX() + player.gW()):
                     #print("player hit!")
                     gP.lives = 0
                 # falling
-                elif t.gY() + 5 < gP.y_max+player.gHght():
+                elif t.gY() + 5 < gP.y_max+player.gH():
                     t.sY(t.gY()+5)
-                    draw_bloc(t.gCol(), colors, t.gX(), t.gY()-t.gHght(), t.gWdth(), t.gHght(), pg, gameDisplay)
+                    #draw_bloc(t.gCol(), colors, t.gX(), t.gY()-t.gHght(), t.gWdth(), t.gHght(), pg, gameDisplay)
+                    draw_image(t.gImage(), t.gX()-t.gW(), t.gY()-t.gH(), gameDisplay)
+                    t.sState(t.gState()+1)
                 # hits ground
                 else:
                     gP.lives -= 1
-                    #print("ground hit!")
-                    gP.explosions.append(Explosion(t.gX(), t.gY()-30))
+                    #gP.explosions.append(Explosion(t.gX(), t.gY()-30))
+                    gP.explosions.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
                     gP.targets.remove(t)
 
         # Player
@@ -307,15 +291,15 @@ def main():
         # Obstacles
         for o in gP.obstacles:
             # '+20'-width found by trial
-            draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width+20, o.gHeight(), pg, gameDisplay)
-            #draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+o.gHeight(), gP.bloc_width, o.gHeight(), pg, gameDisplay)
+            #draw_bloc(o.gColor(), colors, o.gXStart(), gP.y_max+player.gHght()-o.gHeight(), gP.bloc_width+20, o.gHeight(), pg, gameDisplay)
+            draw_image(o.gImage(), o.gX(), o.gY()+20, gameDisplay)
         # Explosions
         for e in gP.explosions:
-            if e.gState() == len(gP.explosion_images)+1:
+            if e.gState() == e.gNImages()-1:
                 gP.explosions.remove(e)
             else:
                 # '-10' bei Koordinate empirisch gefunden
-                draw_image(gP.explosion_images[e.gState()-1] , e.gX()-10, e.gY()-10, gameDisplay)
+                draw_image(e.gImage(), e.gX()-10, e.gY()-10, gameDisplay)
                 e.sState(e.gState()+1)
         
         pg.display.update()
