@@ -79,7 +79,7 @@ def handleEvent(player, event, pg, gP, colors):
     if event.type == pg.MOUSEBUTTONDOWN:
         mouse_pos = event.pos  # gets mouse position
         if mouse_pos[0] > gP.obstacles[0].gX() and mouse_pos[0] < gP.obstacles[0].gX() + gP.obstacles[0].gW() and mouse_pos[1] > 520 and mouse_pos[1] < 580:
-            gP.hidden_texts.append(hidden_text("Inequality because of sex or skin color is not a good thing.\nOur society should overcome this.", (150, 400), 20, colors.getColor('blue')))
+            gP.hidden_texts.append(hidden_text("Oh, someone left the engine running...\nAnyways:\nGo by bike!\nBetter for you, better for the environment.", (150, 400), 20, colors.getColor('blue')))
         elif mouse_pos[0] >  460 and mouse_pos[0] < 520 and mouse_pos[1] > 530 and mouse_pos[1] < 560:
             gP.hidden_texts.append(hidden_text("There is no planet B!", (100, 100), 30, colors.getColor('green')))
         elif mouse_pos[0] > 45 and mouse_pos[0] < 105 and mouse_pos[1] > 530 and mouse_pos[1] < 570:
@@ -115,15 +115,7 @@ def choosefig(player, gameDisplay, cou, gP):
     player.sState(player.gState()+1)
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
 
-
-#def text_objects(text, font):
-#    textSurface = font.render(text, True, (0, 0,0))
-#    return textSurface, textSurface.get_rect()
 def message_display(gameDisplay, hidden_text):
-    #largeText = pg.font.Font('freesansbold.ttf', hidden_text.gSize())
-    #TextSurf, TextRect = text_objects(hidden_text.gText(), largeText)
-    #TextRect.center = hidden_text.gPos()
-    #gameDisplay.blit(TextSurf, TextRect)
     ptext.draw(hidden_text.gText(), hidden_text.gPos(), color=hidden_text.gColor(), fontsize=hidden_text.gSize())
 
 
@@ -179,14 +171,14 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 gP.xchange = 0  
             elif gP.jump: 
                 # keep falling
-                if player.gY() < gP.y_max - gP.obstacles[c].gH():
+                if player.gY() < gP.y_max - gP.obstacles[c].gH() + 10:
                     pass
                 # jump from obstacle
                 elif gP.start_jump and gP.ychange==0:
                     pass
                 # land and stand on the obstacle, reset t so if the obstacle is left, the physical fall/jump-simualtion is correct
-                elif player.gY() - gP.ychange <= gP.y_max - gP.obstacles[c].gH() and gP.ychange >= 0:
-                    player.sY(gP.y_max - gP.obstacles[c].gH())
+                elif player.gY() - gP.ychange <= gP.y_max - gP.obstacles[c].gH() + 10 and gP.ychange >= 0:
+                    player.sY(gP.y_max - gP.obstacles[c].gH() + 10)
                     gP.t = 0
                     gP.jump = False
                     gP.ychange = 0
@@ -290,7 +282,9 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         choosefig(player, gameDisplay, cou, gP)    
 
         # draw obstacles, '+20'-width found by trial to look better
-        [draw_image(o.gImage(), o.gX(), o.gY()+20, gameDisplay) for o in gP.obstacles]
+        for o in gP.obstacles:
+            draw_image(o.gImage(), o.gX(), o.gY(), gameDisplay) 
+            o.sState(o.gState()+1)
 
         # draw saved animals/ continue animation or quit the animation when all sequences done, '+20'-width found to look better
         for s in gP.co2_sources_gone:
@@ -359,7 +353,7 @@ def main():
     
     # place an obstacle at a random position, '+20'-width found by trial to look better
     xPosBloc = ran.randrange(gP.disp_wdth/3, (2/3)*gP.disp_wdth)
-    gP.obstacles.append(an_obj(xPosBloc, gP.y_max, 90, 60, gP.obstacle_images, 0))
+    gP.obstacles.append(an_obj(xPosBloc, gP.y_max-10, 90, 60, gP.obstacle_images, 0))
     [draw_image(o.gImage(), o.gX(), gP.y_max+player.gH()-o.gH(), gameDisplay) for o in gP.obstacles]
 
     # set starting-position of player
