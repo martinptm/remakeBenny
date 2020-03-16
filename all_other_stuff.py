@@ -29,7 +29,8 @@ def draw_image(bl, x, y, gameDisplay):
 
 def load_Images(gP, pg):
     # read in all frames needed in animations
-    paths = ('co2',
+    paths = ('background',
+        'co2',
         'earth_stand', 
         'earth_throw', 
         'earth_walk', 
@@ -41,8 +42,10 @@ def load_Images(gP, pg):
         'things_hit',
         'counter_co2',
         'counter_fruits',
-        'rescued_species')
-    params = (gP.co2_images,
+        'rescued_species',
+        'earth_overheated')
+    params = (gP.background_image,
+        gP.co2_images,
         gP.stand_images, 
         gP.throw_images, 
         gP.walk_images, 
@@ -54,8 +57,10 @@ def load_Images(gP, pg):
         gP.things_hit_images,
         gP.counter_co2_images,
         gP.counter_fruits_images,
-        gP.rescued_species_image)
-    sizes = ((50,50),
+        gP.rescued_species_image,
+        gP.earth_overheated_images)
+    sizes = ((600,600),
+            (50,50),
             (100,100),
             (100,100),
             (100,100),
@@ -67,11 +72,12 @@ def load_Images(gP, pg):
             (50,50),
             (100,60),
             (100,60),
-            (100,100)) 
+            (100,100),
+            (300, 200)) 
     for c in range(0, len(paths)):
         path = './Images/' + paths[c] +'/'
         image_files = fnmatch.filter(os.listdir(path), '*.png')
-        if c == 7 or c == 8 or c == 9: 
+        if c == 8 or c == 9 or c == 10: 
             for image_file in image_files:
                 t = []
                 for c2 in range(0,20): 
@@ -80,12 +86,13 @@ def load_Images(gP, pg):
                     else:
                         t.append(pg.transform.rotate(pg.transform.scale(pg.image.load(path + image_file), sizes[c]), c2*18))
                 params[c].append(t)
-        elif c == 10 or c == 11:
+        elif c == 11 or c == 12:
             for image_file in image_files:
                 im = image_file.replace(".png", "")
                 params[c][im] = pg.transform.scale(pg.image.load(path + image_file), sizes[c])
         else:
             [params[c].append(pg.transform.scale(pg.image.load(path + image_file), sizes[c])) for image_file in image_files]
+            #[print(image_file) for image_file in image_files]
 
 class gameParams():
     def __init__(self):
@@ -122,9 +129,10 @@ class gameParams():
         self.obstacles = []
         self.things_to_throw = []
         self.targets = []
-        self.saved_animals = []
+        self.co2_sources_gone = []
 
         # lists and dicts to store all frames for animations
+        self.background_image = []
         self.co2_images = []
         self.stand_images = []
         self.throw_images = []
@@ -138,6 +146,7 @@ class gameParams():
         self.counter_co2_images = {}
         self.counter_fruits_images = {}
         self.rescued_species_image = []
+        self.earth_overheated_images = []
 
         # parameter if player throws a fruit
         self.throw_up = False
@@ -147,6 +156,10 @@ class gameParams():
         self.fruits_left = 6
         # counter for saved species/ avoided co2-sources
         self.species_saved = 0
+
+        self.hidden_texts = []
+
+        self.draw_text = False
 
 
 class an_obj():
@@ -189,3 +202,20 @@ class an_obj():
         if state > len(self._images)-1:
             state = 0
         self._state = state
+
+class hidden_text():
+    def __init__(self, text, pos, size, color):
+        self._text = text
+        self._pos = pos
+        self._size = size
+        self._color = color
+
+    def gText(self):
+        return self._text
+    def gPos(self):
+        return self._pos
+    def gSize(self):
+        return self._size
+    def gColor(self):
+        return self._color
+    

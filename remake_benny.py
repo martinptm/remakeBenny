@@ -27,51 +27,65 @@ OS-Pfad-Sachen: https://stackoverflow.com/questions/2632205/how-to-count-the-num
 import numpy as np
 import pygame as pg
 import random as ran
+import time
+import ptext
 
 from all_other_stuff import *
 from calcAccel import calcAandV0
 
-def handleEvent(player, event, pg, gP):
+def handleEvent(player, event, pg, gP, colors):
     # detect if gamewindow is closed or esc-key is pressed
     if event.type == pg.QUIT:
         gP.quitGame = True
     elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:  # äquivalent wäre == 27
         gP.quitGame = True
-                
-    # detect if one of the relevant keys is released
-    if event.type == pg.KEYUP:
-        if event.key == pg.K_RIGHT:
-            gP.mr = False
-        elif event.key == pg.K_LEFT:
-            gP.ml = False
-        elif event.key == pg.K_UP:
-            gP.start_jump = False
-        elif event.key == pg.K_SPACE:
-            gP.throw_up = False
+         
+    if gP.lives > 0:       
+        # detect if one of the relevant keys is released
+        if event.type == pg.KEYUP:
+            if event.key == pg.K_RIGHT:
+                gP.mr = False
+            elif event.key == pg.K_LEFT:
+                gP.ml = False
+            elif event.key == pg.K_UP:
+                gP.start_jump = False
+            elif event.key == pg.K_SPACE:
+                gP.throw_up = False
                     
-    # detect if one of the relevant keys is pressed
-    if event.type == pg.KEYDOWN:
-        if event.key == pg.K_UP:
-            gP.start_jump = True
-        elif event.key == pg.K_RIGHT:
-            gP.stopXMove = False
-            gP.mr = True
-            gP.ml = False
-        elif event.key == pg.K_LEFT:
-            gP.stopXMove = False
-            gP.ml = True
-            gP.mr = False
-        elif event.key == pg.K_SPACE:
-            # throw things at left and right side of the player (extra shifts found by testing) 
-            # (only possible if the player has 'fruits' to throw in his basket)
-            r = ran.randrange(0, len(gP.things_throw_images))
-            if gP.fruits_left > 0:
-                gP.fruits_left -= 1
-                gP.things_to_throw.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
-            if gP.fruits_left > 0:
-                gP.fruits_left -= 1
-                gP.things_to_throw.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
-            gP.throw_up = True
+        # detect if one of the relevant keys is pressed
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_UP:
+                gP.start_jump = True
+            elif event.key == pg.K_RIGHT:
+                gP.stopXMove = False
+                gP.mr = True
+                gP.ml = False
+            elif event.key == pg.K_LEFT:
+                gP.stopXMove = False
+                gP.ml = True
+                gP.mr = False
+            elif event.key == pg.K_SPACE:
+                # throw things at left and right side of the player (extra shifts found by testing) 
+                # (only possible if the player has 'fruits' to throw in his basket)
+                r = ran.randrange(0, len(gP.things_throw_images))
+                if gP.fruits_left > 0:
+                    gP.fruits_left -= 1
+                    gP.things_to_throw.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
+                if gP.fruits_left > 0:
+                    gP.fruits_left -= 1
+                    gP.things_to_throw.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
+                gP.throw_up = True
+
+    if event.type == pg.MOUSEBUTTONDOWN:
+        mouse_pos = event.pos  # gets mouse position
+        if mouse_pos[0] > gP.obstacles[0].gX() and mouse_pos[0] < gP.obstacles[0].gX() + gP.obstacles[0].gW() and mouse_pos[1] > 520 and mouse_pos[1] < 580:
+            gP.hidden_texts.append(hidden_text("Inequality because of sex or skin color is not a good thing.\nOur society should overcome this.", (150, 400), 20, colors.getColor('blue')))
+        elif mouse_pos[0] >  460 and mouse_pos[0] < 520 and mouse_pos[1] > 530 and mouse_pos[1] < 560:
+            gP.hidden_texts.append(hidden_text("There is no planet B!", (100, 100), 30, colors.getColor('green')))
+        elif mouse_pos[0] > 45 and mouse_pos[0] < 105 and mouse_pos[1] > 530 and mouse_pos[1] < 570:
+            gP.hidden_texts.append(hidden_text("What do we want?\nCLIMATE JUSTICE!\nWhen do we want it?\nNOW!", (400, 300), 25, colors.getColor('red')))
+    elif event.type == pg.MOUSEBUTTONUP and len(gP.hidden_texts) > 0:
+        gP.hidden_texts.pop()
 
 def choosefig(player, gameDisplay, cou, gP):
     # choose correct type of player-figure according to its current movement/action
@@ -94,59 +108,36 @@ def choosefig(player, gameDisplay, cou, gP):
     player.sState(player.gState()+1)
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
 
-def main(): 
-    """
-    Idee: Try/Catch für Entscheidung ob mit JoyStick oder Tastatur?
-    Oder Menü-Auswahl?
-    """ 
-    pg.init()
 
-    pg.font.init()
-    myfont = pg.font.SysFont('Comic Sans MS', 30)
-    
-    gP = gameParams()
-    colors = Colors()
-    
-    gameDisplay = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
-    gameDisplay.fill(colors.getColor('blue'))
-    pg.display.set_caption('Hide the pain EARTH')
+#def text_objects(text, font):
+#    textSurface = font.render(text, True, (0, 0,0))
+#    return textSurface, textSurface.get_rect()
+def message_display(gameDisplay, hidden_text):
+    #largeText = pg.font.Font('freesansbold.ttf', hidden_text.gSize())
+    #TextSurf, TextRect = text_objects(hidden_text.gText(), largeText)
+    #TextRect.center = hidden_text.gPos()
+    #gameDisplay.blit(TextSurf, TextRect)
+    ptext.draw(hidden_text.gText(), hidden_text.gPos(), color=hidden_text.gColor(), fontsize=hidden_text.gSize())
 
-    clock = pg.time.Clock()
-    
-    # import all necessary images/frames for the animations and things that are displayed
-    load_Images(gP, pg)
 
-    # initialise player-figure
-    player = an_obj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
-    
-    # calculate parameters for pyhsical simulation of a jump with specified boundary-conditions (max. time and jumping-height)
-    (a,v0) = calcAandV0(.5, gP.jumpheight)
-    
-    # place an obstacle at a random position, '+20'-width found by trial to look better
-    xPosBloc = ran.randrange(gP.disp_wdth/5, (4/5)*gP.disp_wdth)
-    gP.obstacles.append(an_obj(xPosBloc, gP.y_max, 90, 60, gP.obstacle_images, 0))
-    [draw_image(o.gImage(), o.gX(), gP.y_max+player.gH()-o.gH(), gameDisplay) for o in gP.obstacles]
-
-    # set starting-position of player
-    draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
-
+def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
     # counter to track iterations of frames in the game loop
     cou = 0
-
     # game loop
     while not gP.quitGame:
         cou += 1
 
-        # increase fruits in basket regulary
-        if cou%30 == 0 and gP.fruits_left < 6:
-            gP.fruits_left += 1
+        if gP.lives > 0:
+            # increase fruits in basket regulary
+            if cou%30 == 0 and gP.fruits_left < 6:
+                gP.fruits_left += 1
 
-        # rate of appearance increases with more succes in the game (small level of uncertainty comes into play ;D)
-        r = ran.randrange(0, 8)
-        if cou+r >= 70 or (gP.species_saved >= 5 and cou+r >= 50):
-            target_nr = ran.randrange(0, len(gP.target_images))
-            gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - 20), 0, 20, 20, gP.target_images[target_nr], 0))
-            cou = 0
+            # rate of appearance increases with more succes in the game (small level of uncertainty comes into play ;D)
+            r = ran.randrange(0, 8)
+            if cou+r >= 70 or (gP.species_saved >= 5 and cou+r >= 50):
+                target_nr = ran.randrange(0, len(gP.target_images))
+                gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - 20), 0, 20, 20, gP.target_images[target_nr], 0))
+                cou = 0
         
         # check if player is at lowes possible point 
         if player.gY() == gP.y_max:
@@ -156,7 +147,7 @@ def main():
             
         # detect and handle user-input and set movement accordingly
         for event in pg.event.get():
-            handleEvent(player, event, pg, gP)      
+            handleEvent(player, event, pg, gP, colors)      
         if gP.onGround or (gP.at_x_of_obst and not gP.jump):
             if gP.start_jump:
                 gP.jump = True
@@ -234,7 +225,8 @@ def main():
         #   - Explosion
 
         # draw background
-        gameDisplay.fill(colors.getColor('blue'))
+        #gameDisplay.fill(colors.getColor('blue'))
+        draw_image(gP.background_image[0], 0, 0, gameDisplay)
 
         # fruits to throw
         for f in gP.things_to_throw:  
@@ -245,7 +237,7 @@ def main():
                     target_hit = True
                     gP.species_saved += 1
                     r = ran.randrange(0, len(gP.things_hit_images))
-                    gP.saved_animals.append(an_obj(f.gX(), f.gY(), 50, 50, gP.things_hit_images[r], 0))
+                    gP.co2_sources_gone.append(an_obj(f.gX(), f.gY(), 50, 50, gP.things_hit_images[r], 0))
                     gP.targets.remove(t)
                     gP.things_to_throw.remove(f)
                     break
@@ -262,10 +254,11 @@ def main():
         for t in gP.targets:
             for o in gP.obstacles:  
                 # check if target hits an obstacle
-                if t.gY() >= gP.y_max + (player.gH() - o.gH()) and (t.gX() + t.gW() >= o.gX() and t.gX() <= o.gX() + o.gW()):
+                #if t.gY() >= gP.y_max + (player.gH() - o.gH()) and (t.gX() + t.gW() >= o.gX() and t.gX() <= o.gX() + o.gW()):
+                if t.gY() >= gP.y_max - o.gH() + 50 and (t.gX() + t.gW() >= o.gX() and t.gX() <= o.gX() + o.gW()):
                     hit_obstacle = True
                     gP.targets.remove(t)
-                    gP.saved_animals.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
+                    gP.co2_sources_gone.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
                     gP.lives -= 1
                     break
                 else:
@@ -282,8 +275,9 @@ def main():
                     t.sState(t.gState()+1)
                 # hits ground
                 else:
-                    gP.lives -= 1
-                    gP.saved_animals.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
+                    if gP.lives > 0:
+                        gP.lives -= 1
+                    gP.co2_sources_gone.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
                     gP.targets.remove(t)
 
         # chose game-character matching the current movement
@@ -293,12 +287,12 @@ def main():
         [draw_image(o.gImage(), o.gX(), o.gY()+20, gameDisplay) for o in gP.obstacles]
 
         # draw saved animals/ continue animation or quit the animation when all sequences done, '+20'-width found to look better
-        for animal in gP.saved_animals:
-            if animal.gState() == animal.gNImages()-1:
-                gP.saved_animals.remove(animal)
+        for s in gP.co2_sources_gone:
+            if s.gState() == s.gNImages()-1:
+                gP.co2_sources_gone.remove(s)
             else:
-                draw_image(animal.gImage(), animal.gX()-10, animal.gY()-10, gameDisplay)
-                animal.sState(animal.gState()+1)
+                draw_image(s.gImage(), s.gX()-10, s.gY()-10, gameDisplay)
+                s.sState(s.gState()+1)
 
         # show stats
         draw_image(gP.counter_co2_images[str(gP.lives*60)], 500, 0, gameDisplay)
@@ -306,16 +300,66 @@ def main():
         draw_image(gP.rescued_species_image[0], 500, 200, gameDisplay)
         textsurface = myfont.render(str(gP.species_saved), False, (0, 0, 0))
         gameDisplay.blit(textsurface,(545,275))
-        
+
+        if gP.draw_text:
+            draw_image(gP.earth_overheated_images[r_num], 150, 250, gameDisplay)
+
+
+
+        if len(gP.hidden_texts) > 0:
+            message_display(gameDisplay, gP.hidden_texts[0])
+
         pg.display.update()
         
         # number of FPS at which the game ist running
         clock.tick(gP.FPS)
 
-        if gP.lives < 1:
-            gP.quitGame = True
-            print("You lost!")
-        
+        if gP.lives < 1 and not gP.draw_text:
+            gP.draw_text = True
+            r_num = ran.randrange(0, len(gP.earth_overheated_images))
+            gP.FPS = 5
+             
+
+def main(): 
+    """
+    Idee: Try/Catch für Entscheidung ob mit JoyStick oder Tastatur?
+    Oder Menü-Auswahl?
+    """ 
+    pg.init()
+
+    pg.font.init()
+    myfont = pg.font.SysFont('Comic Sans MS', 30)
+    
+    gP = gameParams()
+    colors = Colors()
+
+    clock = pg.time.Clock()
+    
+    # import all necessary images/frames for the animations and things that are displayed
+    load_Images(gP, pg)
+
+    gameDisplay = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
+    #gameDisplay.fill(colors.getColor('blue'))
+    draw_image(gP.background_image[0], 0, 0, gameDisplay)
+    pg.display.set_caption('Hide the pain EARTH')
+
+    # initialise player-figure
+    player = an_obj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
+    
+    # calculate parameters for pyhsical simulation of a jump with specified boundary-conditions (max. time and jumping-height)
+    (a,v0) = calcAandV0(.5, gP.jumpheight)
+    
+    # place an obstacle at a random position, '+20'-width found by trial to look better
+    xPosBloc = ran.randrange(gP.disp_wdth/3, (2/3)*gP.disp_wdth)
+    gP.obstacles.append(an_obj(xPosBloc, gP.y_max, 90, 60, gP.obstacle_images, 0))
+    [draw_image(o.gImage(), o.gX(), gP.y_max+player.gH()-o.gH(), gameDisplay) for o in gP.obstacles]
+
+    # set starting-position of player
+    draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
+
+    
+    game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors)
+
     # Spiel beenden und Programm verlassen 
     pg.quit()
     quit()
