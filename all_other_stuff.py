@@ -151,7 +151,7 @@ class gameParams():
         # parameter if player throws a fruit
         self.throw_up = False
         # counter for GT of co2 left until 2° warming will be exceeded
-        self.lives = 10
+        self._lives = 10
         #counter of fruits in basket
         self.fruits_left = 6
         # counter for saved species/ avoided co2-sources
@@ -160,6 +160,14 @@ class gameParams():
         self.hidden_texts = []
 
         self.draw_text = False
+
+    def get_lives(self):
+        return self._lives
+    def set_lives(self, lives):
+        if lives >=0:
+            self._lives = lives
+        else: 
+            self._lives = 0
 
 
 class an_obj():

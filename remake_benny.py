@@ -40,7 +40,7 @@ def handleEvent(player, event, pg, gP, colors):
     elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:  # äquivalent wäre == 27
         gP.quitGame = True
          
-    if gP.lives > 0:       
+    if gP.get_lives() > 0:       
         # detect if one of the relevant keys is released
         if event.type == pg.KEYUP:
             if event.key == pg.K_RIGHT:
@@ -127,7 +127,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
     while not gP.quitGame:
         cou += 1
 
-        if gP.lives > 0:
+        if gP.get_lives() > 0:
             # increase fruits in basket regulary
             if cou%30 == 0 and gP.fruits_left < 6:
                 gP.fruits_left += 1
@@ -259,7 +259,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                     hit_obstacle = True
                     gP.targets.remove(t)
                     gP.co2_sources_gone.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
-                    gP.lives -= 1
+                    gP.set_lives(gP.get_lives()-1)
                     break
                 else:
                     hit_obstacle = False
@@ -267,7 +267,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             if not hit_obstacle:
                 # check y- and x-coordinates of target and player, ycheck so that you can jump over a target without getting hit
                 if (t.gY() >= player.gY() and t.gY() < player.gY() + player.gH()) and  (t.gX() > player.gX() and t.gX() < player.gX() + player.gW()):
-                    gP.lives = 0
+                    gP.set_lives(0)
                 # falling
                 elif t.gY() + 5 < gP.y_max+player.gH()-t.gH():
                     t.sY(t.gY()+5)
@@ -275,8 +275,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                     t.sState(t.gState()+1)
                 # hits ground
                 else:
-                    if gP.lives > 0:
-                        gP.lives -= 1
+                    gP.set_lives(gP.get_lives()-1) 
                     gP.co2_sources_gone.append(an_obj(t.gX(), t.gY(), 50, 50, gP.co2_images, 0))
                     gP.targets.remove(t)
 
@@ -295,7 +294,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 s.sState(s.gState()+1)
 
         # show stats
-        draw_image(gP.counter_co2_images[str(gP.lives*60)], 500, 0, gameDisplay)
+        draw_image(gP.counter_co2_images[str(gP.get_lives()*60)], 500, 0, gameDisplay)
         draw_image(gP.counter_fruits_images[str(gP.fruits_left)], 500, 100, gameDisplay)
         draw_image(gP.rescued_species_image[0], 500, 200, gameDisplay)
         textsurface = myfont.render(str(gP.species_saved), False, (0, 0, 0))
@@ -314,7 +313,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         # number of FPS at which the game ist running
         clock.tick(gP.FPS)
 
-        if gP.lives < 1 and not gP.draw_text:
+        if gP.get_lives() < 1 and not gP.draw_text:
             gP.draw_text = True
             r_num = ran.randrange(0, len(gP.earth_overheated_images))
             gP.FPS = 5
