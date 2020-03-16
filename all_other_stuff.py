@@ -43,7 +43,8 @@ def load_Images(gP, pg):
         'counter_co2',
         'counter_fruits',
         'rescued_species',
-        'earth_overheated')
+        'earth_overheated',
+        'help')
     params = (gP.background_image,
         gP.co2_images,
         gP.stand_images, 
@@ -58,7 +59,8 @@ def load_Images(gP, pg):
         gP.counter_co2_images,
         gP.counter_fruits_images,
         gP.rescued_species_image,
-        gP.earth_overheated_images)
+        gP.earth_overheated_images,
+        gP.help_images)
     sizes = ((600,600),
             (50,50),
             (100,100),
@@ -73,7 +75,8 @@ def load_Images(gP, pg):
             (100,60),
             (100,60),
             (100,100),
-            (300, 200)) 
+            (300, 200),
+            ((120,60), (300,300))) 
     for c in range(0, len(paths)):
         path = './Images/' + paths[c] +'/'
         image_files = fnmatch.filter(os.listdir(path), '*.png')
@@ -90,6 +93,12 @@ def load_Images(gP, pg):
             for image_file in image_files:
                 im = image_file.replace(".png", "")
                 params[c][im] = pg.transform.scale(pg.image.load(path + image_file), sizes[c])
+        elif c == 15:
+            for image_file in image_files:
+                if image_file == 'how_to.png':
+                    params[c][image_file.replace(".png", "")] = pg.transform.scale(pg.image.load(path + image_file), sizes[c][0])
+                else:
+                    params[c][image_file.replace(".png", "")] = pg.transform.scale(pg.image.load(path + image_file), sizes[c][1])
         else:
             [params[c].append(pg.transform.scale(pg.image.load(path + image_file), sizes[c])) for image_file in image_files]
             #[print(image_file) for image_file in image_files]
@@ -98,7 +107,7 @@ class gameParams():
     def __init__(self):
         self.disp_wdth = 600
         self.disp_hght = 600
-        self.FPS = 60
+        self._FPS = 60
         
         # ground-level
         self.y_max = self.disp_hght - 100
@@ -147,6 +156,7 @@ class gameParams():
         self.counter_fruits_images = {}
         self.rescued_species_image = []
         self.earth_overheated_images = []
+        self.help_images = {}
 
         # parameter if player throws a fruit
         self.throw_up = False
@@ -161,6 +171,8 @@ class gameParams():
 
         self.draw_text = False
 
+        self.help_image = 'how_to'
+
     def get_lives(self):
         return self._lives
     def set_lives(self, lives):
@@ -168,6 +180,11 @@ class gameParams():
             self._lives = lives
         else: 
             self._lives = 0
+
+    def get_FPS(self):
+        return self._FPS
+    def set_FPS(self, FPS):
+        self._FPS = FPS
 
 
 class an_obj():

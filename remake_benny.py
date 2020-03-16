@@ -87,6 +87,13 @@ def handleEvent(player, event, pg, gP, colors):
     elif event.type == pg.MOUSEBUTTONUP and len(gP.hidden_texts) > 0:
         gP.hidden_texts.pop()
 
+    if event.type == pg.MOUSEMOTION:
+        mouse_pos = event.pos
+        if mouse_pos[0] > 10 and mouse_pos[0] < 130 and mouse_pos[1] > 10 and mouse_pos[1] < 70:
+            gP.help_image = 'manual'
+        else:
+            gP.help_image = 'how_to'
+
 def choosefig(player, gameDisplay, cou, gP):
     # choose correct type of player-figure according to its current movement/action
     # Throw up sth
@@ -195,8 +202,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
 
         # jump-simulation (independent of starting point since change of position and not the absolute position is calculated)
         if gP.jump:  
-            gP.t += 1/gP.FPS    
-            gP.ychange =  1/gP.FPS * (-v0 + a*gP.t)
+            gP.t += 1/gP.get_FPS()    
+            gP.ychange =  1/gP.get_FPS() * (-v0 + a*gP.t)
             player.sY(player.gY() + gP.ychange)   
             # land on the ground 
             if player.gY() > gP.y_max:
@@ -207,8 +214,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
 
         # if player stood on obstacle and now leaving it. No initial jump, only falling down.
         if not gP.jump and not gP.at_x_of_obst  and player.gY() < gP.y_max:
-            gP.t += 1/gP.FPS
-            gP.ychange =  1/gP.FPS * (a*gP.t) 
+            gP.t += 1/gP.get_FPS()
+            gP.ychange =  1/gP.get_FPS() * (a*gP.t) 
             player.sY(player.gY() + gP.ychange)
             # land on the ground 
             if player.gY() > gP.y_max:
@@ -297,6 +304,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         draw_image(gP.counter_co2_images[str(gP.get_lives()*60)], 500, 0, gameDisplay)
         draw_image(gP.counter_fruits_images[str(gP.fruits_left)], 500, 100, gameDisplay)
         draw_image(gP.rescued_species_image[0], 500, 200, gameDisplay)
+        draw_image(gP.help_images[gP.help_image], 10, 10, gameDisplay)
         textsurface = myfont.render(str(gP.species_saved), False, (0, 0, 0))
         gameDisplay.blit(textsurface,(545,275))
 
@@ -311,12 +319,13 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         pg.display.update()
         
         # number of FPS at which the game ist running
-        clock.tick(gP.FPS)
+        clock.tick(gP.get_FPS())
 
+        # slow down speed an display game-finished-text from now on 
         if gP.get_lives() < 1 and not gP.draw_text:
             gP.draw_text = True
             r_num = ran.randrange(0, len(gP.earth_overheated_images))
-            gP.FPS = 5
+            gP.set_FPS(5)
              
 
 def main(): 
