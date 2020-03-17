@@ -107,7 +107,10 @@ class gameParams():
     def __init__(self):
         self.disp_wdth = 600
         self.disp_hght = 600
-        self._FPS = 60
+        
+        # needs to be set to a value that is convenient for you (in my case 20-60
+        # depending on the computer I use)
+        self._FPS = 15
         
         # ground-level
         self.y_max = self.disp_hght - 100
