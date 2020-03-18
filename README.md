@@ -10,3 +10,9 @@ graphics and some kind of animation.
 Maybe I finde some time to clean up the code some time.
 
 Have fun and care for our environment!
+
+You need PyGame and Numpy installed.
+
+'''
+$ python3 remakeBenny.py
+'''

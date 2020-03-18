@@ -1,98 +1,11 @@
-"""
-Ziel dieses Projektes ist das Erlernen von Grundfunktionen von PyGame.
-Meine erse Idee wäre ein Remake von Benny.scratch2, wobei z.B. eine Amination
-eines hüpfenden/fallenden Gegenstands mit einer einfachen realitätsnäheren
-Implementierung erweitert werden könnte.
-
-can be run from interactive shell using " exec(open('remakeBenny.py').read())", see
-https://stackoverflow.com/questions/17247471/how-to-run-a-python-script-from-idle-interactive-shell.
-or (at least in Thonny IDE) using:
-%Run remakeBenny.py
-
-https://pythonprogramming.net/pygame-python-3-part-1-intro/
-
-
-Python elegant alternative for switch-case:
-https://bytebaker.com/2008/11/03/switch-case-statement-in-python/
-
-In Thonny verfügbare Shortcuts sind bei -> Edit zu finden !!!
-
-Simultion Sprung (Herleitung siehe 'calcAccel.py'):
-    v0 = 267
-    a = 356
-    y(t) = y_max - v0 * t + 0.5 a * t²
-    
-OS-Pfad-Sachen: https://stackoverflow.com/questions/2632205/how-to-count-the-number-of-files-in-a-directory-using-python
-"""
 import numpy as np
 import pygame as pg
 import random as ran
 import time
 import ptext
 
-from all_other_stuff import *
-from calcAccel import calcAandV0
-
-def handleEvent(player, event, pg, gP, colors):
-    # detect if gamewindow is closed or esc-key is pressed
-    if event.type == pg.QUIT:
-        gP.quitGame = True
-    elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:  # äquivalent wäre == 27
-        gP.quitGame = True
-         
-    if gP.get_lives() > 0:       
-        # detect if one of the relevant keys is released
-        if event.type == pg.KEYUP:
-            if event.key == pg.K_RIGHT:
-                gP.mr = False
-            elif event.key == pg.K_LEFT:
-                gP.ml = False
-            elif event.key == pg.K_UP:
-                gP.start_jump = False
-            elif event.key == pg.K_SPACE:
-                gP.throw_up = False
-                    
-        # detect if one of the relevant keys is pressed
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_UP:
-                gP.start_jump = True
-            elif event.key == pg.K_RIGHT:
-                gP.stopXMove = False
-                gP.mr = True
-                gP.ml = False
-            elif event.key == pg.K_LEFT:
-                gP.stopXMove = False
-                gP.ml = True
-                gP.mr = False
-            elif event.key == pg.K_SPACE:
-                # throw things at left and right side of the player (extra shifts found by testing) 
-                # (only possible if the player has 'fruits' to throw in his basket)
-                r = ran.randrange(0, len(gP.things_throw_images))
-                if gP.fruits_left > 0:
-                    gP.fruits_left -= 1
-                    gP.things_to_throw.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
-                if gP.fruits_left > 0:
-                    gP.fruits_left -= 1
-                    gP.things_to_throw.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
-                gP.throw_up = True
-
-    if event.type == pg.MOUSEBUTTONDOWN:
-        mouse_pos = event.pos  # gets mouse position
-        if mouse_pos[0] > gP.obstacles[0].gX() and mouse_pos[0] < gP.obstacles[0].gX() + gP.obstacles[0].gW() and mouse_pos[1] > 520 and mouse_pos[1] < 580:
-            gP.hidden_texts.append(hidden_text("Oh, someone left the engine running...\nAnyways:\nGo by bike!\nBetter for you, better for the environment.", (150, 400), 20, colors.getColor('blue')))
-        elif mouse_pos[0] >  460 and mouse_pos[0] < 520 and mouse_pos[1] > 530 and mouse_pos[1] < 560:
-            gP.hidden_texts.append(hidden_text("There is no planet B!", (100, 100), 30, colors.getColor('green')))
-        elif mouse_pos[0] > 45 and mouse_pos[0] < 105 and mouse_pos[1] > 530 and mouse_pos[1] < 570:
-            gP.hidden_texts.append(hidden_text("What do we want?\nCLIMATE JUSTICE!\nWhen do we want it?\nNOW!", (400, 300), 25, colors.getColor('red')))
-    elif event.type == pg.MOUSEBUTTONUP and len(gP.hidden_texts) > 0:
-        gP.hidden_texts.pop()
-
-    if event.type == pg.MOUSEMOTION:
-        mouse_pos = event.pos
-        if mouse_pos[0] > 10 and mouse_pos[0] < 130 and mouse_pos[1] > 10 and mouse_pos[1] < 70:
-            gP.help_image = 'manual'
-        else:
-            gP.help_image = 'how_to'
+from allotherstuff import *
+from methods.calcjumpparams import calc_a_and_v0
 
 def choosefig(player, gameDisplay, cou, gP):
     # choose correct type of player-figure according to its current movement/action
@@ -146,7 +59,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             
         # detect and handle user-input and set movement accordingly
         for event in pg.event.get():
-            handleEvent(player, event, pg, gP, colors)      
+            gP = handle_event(player, event, pg, gP, colors)      
         if gP.onGround or (gP.at_x_of_obst and not gP.jump):
             if gP.start_jump:
                 gP.jump = True
@@ -349,7 +262,7 @@ def main():
     player = an_obj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
     
     # calculate parameters for pyhsical simulation of a jump with specified boundary-conditions (max. time and jumping-height)
-    (a,v0) = calcAandV0(.5, gP.jumpheight)
+    (a,v0) = calc_a_and_v0(.5, gP.jumpheight)
     
     # place an obstacle at a random position, '+20'-width found by trial to look better
     xPosBloc = ran.randrange(gP.disp_wdth/3, (2/3)*gP.disp_wdth)
