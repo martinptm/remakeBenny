@@ -13,6 +13,5 @@ Have fun and care for our environment!
 
 You need PyGame and Numpy installed.
 
-'''
+```
 $ python3 remakeBenny.py
-'''
