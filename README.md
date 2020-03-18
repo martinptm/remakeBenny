@@ -14,6 +14,11 @@ Maybe I finde some time to clean up the code some time.
 ### Prequisites
 You need PyGame and Numpy installed.
 
+### Rune the game
+
+1. clone this repository 
+2. run "remakeBenny.py"
+
 ```
 $ python3 remakeBenny.py
 ```
