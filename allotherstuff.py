@@ -86,22 +86,36 @@ def load_Images(gP, pg):
                 t = []
                 for c2 in range(0,20): 
                     if image_file == ('parrot.png'):
-                        t.append(pg.transform.rotate(pg.transform.scale(pg.image.load(path + image_file), sizes[c]), -c2*18))
+                        t.append(
+                          pg.transform.rotate(
+                          pg.transform.scale(pg.image.load(path + image_file), 
+                          sizes[c]), -c2*18))
                     else:
-                        t.append(pg.transform.rotate(pg.transform.scale(pg.image.load(path + image_file), sizes[c]), c2*18))
+                        t.append(
+                          pg.transform.rotate(
+                          pg.transform.scale(pg.image.load(path + image_file), 
+                          sizes[c]), c2*18))
                 params[c].append(t)
         elif c == 11 or c == 12:
             for image_file in image_files:
                 im = image_file.replace(".png", "")
-                params[c][im] = pg.transform.scale(pg.image.load(path + image_file), sizes[c])
+                params[c][im] = pg.transform.scale(
+                              pg.image.load(path + image_file), sizes[c])
         elif c == 15:
             for image_file in image_files:
                 if image_file == 'how_to.png':
-                    params[c][image_file.replace(".png", "")] = pg.transform.scale(pg.image.load(path + image_file), sizes[c][0])
+                    params[c][image_file.replace(".png", "")] = (
+                     pg.transform.scale(pg.image.load(path + image_file), 
+                                        sizes[c][0]))
                 else:
-                    params[c][image_file.replace(".png", "")] = pg.transform.scale(pg.image.load(path + image_file), sizes[c][1])
+                    params[c][image_file.replace(".png", "")] = (
+                     pg.transform.scale(pg.image.load(path + image_file), 
+                                        sizes[c][1]))
         else:
-            [params[c].append(pg.transform.scale(pg.image.load(path + image_file), sizes[c])) for image_file in image_files]
+            for image_file in image_files:
+                params[c].append(
+                  pg.transform.scale(pg.image.load(path + image_file), 
+                                     sizes[c])) 
             #[print(image_file) for image_file in image_files]
 
 class gameParams():
@@ -109,9 +123,7 @@ class gameParams():
         self.disp_wdth = 600
         self.disp_hght = 600
         
-        # needs to be set to a value that is convenient for you (in my case 20-60
-        # depending on the computer I use)
-        self._FPS = 15
+        self._FPS = 20
         
         # ground-level
         self.y_max = self.disp_hght - 100
@@ -120,7 +132,7 @@ class gameParams():
         self.t = 0
     
         # parameters for movement of player
-        self.step_size = 6
+        self.step_size = 3
         self.xchange = 0
         self.ychange = 0
         self.jump = False
@@ -130,6 +142,8 @@ class gameParams():
         self.mr = False
         self.ml = False
         self.start_jump = False
+
+        self.obj_fall_step = 2
         
         # parameters for interactions with obstacles
         self.aboveObstacle = False
@@ -252,7 +266,7 @@ def handle_event(player, event, pg, gP, colors):
     # detect if gamewindow is closed or esc-key is pressed
     if event.type == pg.QUIT:
         gP.quitGame = True
-    elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:  # äquivalent wäre == 27
+    elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE: 
         gP.quitGame = True
          
     if gP.get_lives() > 0:       
@@ -280,31 +294,61 @@ def handle_event(player, event, pg, gP, colors):
                 gP.ml = True
                 gP.mr = False
             elif event.key == pg.K_SPACE:
-                # throw things at left and right side of the player (extra shifts found by testing) 
-                # (only possible if the player has 'fruits' to throw in his basket)
+                # throw things at left and right side of the player (extra 
+                # shifts found by testing) 
+                # (only possible if the player has 'fruits' to throw in his 
+                # basket)
                 r = ran.randrange(0, len(gP.things_throw_images))
                 if gP.fruits_left > 0:
                     gP.fruits_left -= 1
-                    gP.things_to_throw.append( an_obj(player.gX()+15, player.gY(), 20, 20, gP.things_throw_images[r], 0))
+                    gP.things_to_throw.append(an_obj(player.gX()+15, 
+                                              player.gY(), 20, 20, 
+                                              gP.things_throw_images[r], 0))
                 if gP.fruits_left > 0:
                     gP.fruits_left -= 1
-                    gP.things_to_throw.append( an_obj(player.gX()+player.gW(), player.gY(), 20, 20, gP.things_throw_images[r], 0))
+                    gP.things_to_throw.append(an_obj(player.gX()+player.gW(), 
+                                              player.gY(), 20, 20, 
+                                              gP.things_throw_images[r], 0))
                 gP.throw_up = True
 
     if event.type == pg.MOUSEBUTTONDOWN:
         mouse_pos = event.pos  # gets mouse position
-        if mouse_pos[0] > gP.obstacles[0].gX() and mouse_pos[0] < gP.obstacles[0].gX() + gP.obstacles[0].gW() and mouse_pos[1] > 520 and mouse_pos[1] < 580:
-            gP.hidden_texts.append(hidden_text("Oh, someone left the engine running...\nAnyways:\nGo by bike!\nBetter for you, better for the environment.", (150, 400), 20, colors.getColor('blue')))
-        elif mouse_pos[0] >  460 and mouse_pos[0] < 520 and mouse_pos[1] > 530 and mouse_pos[1] < 560:
-            gP.hidden_texts.append(hidden_text("There is no planet B!", (100, 100), 30, colors.getColor('green')))
-        elif mouse_pos[0] > 45 and mouse_pos[0] < 105 and mouse_pos[1] > 530 and mouse_pos[1] < 570:
-            gP.hidden_texts.append(hidden_text("What do we want?\nCLIMATE JUSTICE!\nWhen do we want it?\nNOW!", (400, 300), 25, colors.getColor('red')))
+        if (mouse_pos[0] > gP.obstacles[0].gX() 
+                and mouse_pos[0] < gP.obstacles[0].gX() + gP.obstacles[0].gW() 
+                and mouse_pos[1] > 520 and mouse_pos[1] < 580):
+            gP.hidden_texts.append(hidden_text(("Oh, someone left the engine "
+                                                "running..."
+                                                "\nAnyways:\nGo by bike!\n"
+                                                "Better for you, better " 
+                                                "for the environment."),
+                                                (150, 400), 20, 
+                                                colors.getColor('blue')))
+        elif (mouse_pos[0] >  460 
+                and mouse_pos[0] < 520 
+                and mouse_pos[1] > 530 
+                and mouse_pos[1] < 560):
+            gP.hidden_texts.append(
+              hidden_text("There is no planet B!", 
+              (100, 100), 30, colors.getColor('green')))
+        elif (mouse_pos[0] > 45 
+                and mouse_pos[0] < 105 
+                and mouse_pos[1] > 530 
+                and mouse_pos[1] < 570):
+            gP.hidden_texts.append(hidden_text(("What do we want?"
+                                                "\nCLIMATE JUSTICE!"
+                                                "\nWhen do we want it?"
+                                                "\nNOW!"),
+                                                (400, 300), 25,
+                                                colors.getColor('red')))
     elif event.type == pg.MOUSEBUTTONUP and len(gP.hidden_texts) > 0:
         gP.hidden_texts.pop()
 
     if event.type == pg.MOUSEMOTION:
         mouse_pos = event.pos
-        if mouse_pos[0] > 10 and mouse_pos[0] < 130 and mouse_pos[1] > 10 and mouse_pos[1] < 70:
+        if (mouse_pos[0] > 10 
+                and mouse_pos[0] < 130 
+                and mouse_pos[1] > 10 
+                and mouse_pos[1] < 70):
             gP.help_image = 'manual'
         else:
             gP.help_image = 'how_to'
