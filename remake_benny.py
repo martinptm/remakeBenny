@@ -4,7 +4,8 @@ import random as ran
 import time
 import ptext
 
-from allotherstuff import *
+from allotherstuff import Colors, GameParams, AnObj
+from allotherstuff import draw_image, load_images, handle_event
 from methods.calcjumpparams import calc_a_and_v0
 
 def choosefig(player, gameDisplay, cou, gP):
@@ -290,7 +291,7 @@ def main():
     
     # import all necessary images/frames for the animations and things 
     # that are displayed
-    load_Images(gP, pg)
+    load_images(gP, pg)
 
     gameDisplay = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
     #gameDisplay.fill(colors.getColor('blue'))
