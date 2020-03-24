@@ -243,6 +243,14 @@ class AnObj():
             state = 0
         self._state = state
 
+class Target(AnObj):
+    """ Aditionally has a parameter which can be set to define 
+        the falling-speed.
+    """
+    def __init__(self, x, y, wdth, hght, images, state, yspeed):
+        super().__init__(x, y, wdth, hght, images, state)
+        self.yspeed = yspeed
+
 class HiddenText():
     def __init__(self, text, pos, size, color):
         self._text = text

@@ -4,7 +4,7 @@ import random as ran
 import time
 import ptext
 
-from allotherstuff import Colors, GameParams, AnObj
+from allotherstuff import Colors, GameParams, AnObj, Target
 from allotherstuff import draw_image, load_images, handle_event
 from methods.calcjumpparams import calc_a_and_v0
 
@@ -57,10 +57,12 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             # rate of appearance increases with more succes in the game 
             # (small level of uncertainty comes into play ;D)
             r = ran.randrange(0, 8)
+            # choose fallingspeed of targets with a little uncertainty
+            random_speed = ran.randrange(-1,3) + gP.obj_fall_step
             if cou+r >= 70 or (gP.species_saved >= 5 and cou+r >= 50):
                 target_nr = ran.randrange(0, len(gP.target_images))
-                gP.targets.append(AnObj(ran.randrange(0, gP.disp_wdth - 20),
-                				  0, 20, 20, gP.target_images[target_nr], 0))
+                gP.targets.append(Target(ran.randrange(0, gP.disp_wdth - 20),
+                				  0, 20, 20, gP.target_images[target_nr], 0, random_speed))
                 cou = 0
         
         # check if player is at lowes possible point 
@@ -214,8 +216,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 		and t.gX() < player.gX() + player.gW()):
                     gP.set_lives(0)
                 # falling
-                elif t.gY() + gP.obj_fall_step < gP.y_max+player.gH()-t.gH():
-                    t.sY(t.gY()+gP.obj_fall_step)
+                elif t.gY()+t.yspeed < gP.y_max+player.gH()-t.gH():
+                    t.sY(t.gY()+t.yspeed)
                     draw_image(t.gImage(), t.gX()-t.gW(), t.gY()-t.gH(), 
                     		   gameDisplay)
                     t.sState(t.gState()+1)
