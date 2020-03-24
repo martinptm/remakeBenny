@@ -8,6 +8,8 @@ from allotherstuff import Colors, GameParams, AnObj, Target
 from allotherstuff import draw_image, load_images, handle_event
 from methods.calcjumpparams import calc_a_and_v0
 
+# Hallo Kommentar
+
 def choosefig(player, gameDisplay, cou, gP):
     """
     Choose correct type of player-figure according to its current
