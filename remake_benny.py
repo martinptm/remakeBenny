@@ -8,8 +8,10 @@ from allotherstuff import *
 from methods.calcjumpparams import calc_a_and_v0
 
 def choosefig(player, gameDisplay, cou, gP):
-    # choose correct type of player-figure according to its current movement/
-    # action
+    """
+    Choose correct type of player-figure according to its current movement/
+    action.
+    """
     # Throw up sth
     if gP.throw_up:
         player.sImages(gP.throw_images)
@@ -31,11 +33,15 @@ def choosefig(player, gameDisplay, cou, gP):
     draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
 
 def message_display(gameDisplay, hidden_text):
+    """ Show an eastereg-text.
+    """
     ptext.draw(hidden_text.gText(), hidden_text.gPos(), 
     		  color=hidden_text.gColor(), fontsize=hidden_text.gSize())
 
 
 def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
+    """ Iterate for every frame in the game.
+    """
     # counter to track iterations of frames in the game loop
     cou = 0
     # game loop

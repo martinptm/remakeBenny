@@ -11,6 +11,8 @@ class Colors():
               }
         
     def getColor(self, color):
+        """ Return RGB-values of specified color.
+        """
         if color not in self.col:
             print("Farbe nicht verfügbar!, DEFAULT: red")
             returncolor = self.col.get('red')
@@ -20,16 +22,19 @@ class Colors():
         return returncolor
 
 def changeMoveDown(movedown):
+    """ Return the inverse bool of the input.
+    """
     if movedown:
         return False
     else:
         return True
     
 def draw_image(bl, x, y, gameDisplay):
-        gameDisplay.blit(bl, (x,y))
+    gameDisplay.blit(bl, (x,y))
 
 def load_Images(gP, pg):
-    # read in all frames needed in animations
+    """ Read in all frames needed in animations.
+    """
     paths = ('background',
         'co2',
         'earth_stand', 
@@ -263,6 +268,8 @@ class hidden_text():
         return self._color
 
 def handle_event(player, event, pg, gP, colors):
+    """ React to user-input.
+    """
     # detect if gamewindow is closed or esc-key is pressed
     if event.type == pg.QUIT:
         gP.quitGame = True
