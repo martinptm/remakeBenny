@@ -262,7 +262,8 @@ class HiddenText():
 def handle_event(player, event, pg, gP, colors):
     """ React to user-input.
     """
-    # detect if gamewindow is closed or esc-key is pressed
+    # Detect if gamewindow is closed or esc-key is pressed.
+    # If so, exit the game and program.
     if event.type == pg.QUIT:
         gP.quitGame = True
     elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE: 

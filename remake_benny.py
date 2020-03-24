@@ -274,7 +274,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             gP.set_FPS(5)
              
 
-def main(): 
+def start_game(): 
     """
     Idee: Try/Catch für Entscheidung ob mit JoyStick oder Tastatur?
     Oder Menü-Auswahl?
@@ -326,4 +326,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    start_game()
