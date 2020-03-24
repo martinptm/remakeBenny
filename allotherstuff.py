@@ -20,14 +20,6 @@ class Colors():
             returncolor = self.col[color]
             
         return returncolor
-
-def changeMoveDown(movedown):
-    """ Return the inverse bool of the input.
-    """
-    if movedown:
-        return False
-    else:
-        return True
     
 def draw_image(bl, x, y, gameDisplay):
     gameDisplay.blit(bl, (x,y))
@@ -123,7 +115,7 @@ def load_Images(gP, pg):
                                      sizes[c])) 
             #[print(image_file) for image_file in image_files]
 
-class gameParams():
+class GameParams():
     def __init__(self):
         self.disp_wdth = 600
         self.disp_hght = 600
@@ -210,7 +202,7 @@ class gameParams():
         self._FPS = FPS
 
 
-class an_obj():
+class AnObj():
     def __init__(self, x, y, wdth, hght, images, state):
         self._x = x
         self._y = y
@@ -251,7 +243,7 @@ class an_obj():
             state = 0
         self._state = state
 
-class hidden_text():
+class HiddenText():
     def __init__(self, text, pos, size, color):
         self._text = text
         self._pos = pos
@@ -301,19 +293,19 @@ def handle_event(player, event, pg, gP, colors):
                 gP.ml = True
                 gP.mr = False
             elif event.key == pg.K_SPACE:
-                # throw things at left and right side of the player (extra 
-                # shifts found by testing) 
-                # (only possible if the player has 'fruits' to throw in his 
-                # basket)
+                # throw things at left and right side of the player 
+                # (extra shifts found by testing) 
+                # (only possible if the player has 'fruits' to throw 
+                # in the basket)
                 r = ran.randrange(0, len(gP.things_throw_images))
                 if gP.fruits_left > 0:
                     gP.fruits_left -= 1
-                    gP.things_to_throw.append(an_obj(player.gX()+15, 
+                    gP.things_to_throw.append(AnObj(player.gX()+15, 
                                               player.gY(), 20, 20, 
                                               gP.things_throw_images[r], 0))
                 if gP.fruits_left > 0:
                     gP.fruits_left -= 1
-                    gP.things_to_throw.append(an_obj(player.gX()+player.gW(), 
+                    gP.things_to_throw.append(AnObj(player.gX()+player.gW(), 
                                               player.gY(), 20, 20, 
                                               gP.things_throw_images[r], 0))
                 gP.throw_up = True
@@ -323,7 +315,7 @@ def handle_event(player, event, pg, gP, colors):
         if (mouse_pos[0] > gP.obstacles[0].gX() 
                 and mouse_pos[0] < gP.obstacles[0].gX() + gP.obstacles[0].gW() 
                 and mouse_pos[1] > 520 and mouse_pos[1] < 580):
-            gP.hidden_texts.append(hidden_text(("Oh, someone left the engine "
+            gP.hidden_texts.append(HiddenText(("Oh, someone left the engine "
                                                 "running..."
                                                 "\nAnyways:\nGo by bike!\n"
                                                 "Better for you, better " 
@@ -335,13 +327,13 @@ def handle_event(player, event, pg, gP, colors):
                 and mouse_pos[1] > 530 
                 and mouse_pos[1] < 560):
             gP.hidden_texts.append(
-              hidden_text("There is no planet B!", 
+              HiddenText("There is no planet B!", 
               (100, 100), 30, colors.getColor('green')))
         elif (mouse_pos[0] > 45 
                 and mouse_pos[0] < 105 
                 and mouse_pos[1] > 530 
                 and mouse_pos[1] < 570):
-            gP.hidden_texts.append(hidden_text(("What do we want?"
+            gP.hidden_texts.append(HiddenText(("What do we want?"
                                                 "\nCLIMATE JUSTICE!"
                                                 "\nWhen do we want it?"
                                                 "\nNOW!"),

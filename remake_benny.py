@@ -9,8 +9,8 @@ from methods.calcjumpparams import calc_a_and_v0
 
 def choosefig(player, gameDisplay, cou, gP):
     """
-    Choose correct type of player-figure according to its current movement/
-    action.
+    Choose correct type of player-figure according to its current
+    movement/action.
     """
     # Throw up sth
     if gP.throw_up:
@@ -58,7 +58,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             r = ran.randrange(0, 8)
             if cou+r >= 70 or (gP.species_saved >= 5 and cou+r >= 50):
                 target_nr = ran.randrange(0, len(gP.target_images))
-                gP.targets.append(an_obj(ran.randrange(0, gP.disp_wdth - 20),
+                gP.targets.append(AnObj(ran.randrange(0, gP.disp_wdth - 20),
                 				  0, 20, 20, gP.target_images[target_nr], 0))
                 cou = 0
         
@@ -81,7 +81,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             else:
                 gP.xchange = 0
 
-        # check if player interacts with the obstacle, '-20' to look better
+        # check if player interacts with the obstacle, '-20' to look 
+        # better
         for c in range(0, len(gP.obstacles)):
             if (player.gX() + gP.xchange > gP.obstacles[c].gX() - player.gW() 
             		and player.gX() + gP.xchange < gP.obstacles[c].gX()
@@ -102,8 +103,9 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 # jump from obstacle
                 elif gP.start_jump and gP.ychange==0:
                     pass
-                # land and stand on the obstacle, reset t so if the obstacle 
-                # is left, the physical fall/jump-simualtion is correct
+                # land and stand on the obstacle, reset t so if the 
+                # obstacle is left, the physical fall/jump-simualtion 
+                # is correct
                 elif (player.gY() - gP.ychange <= 
                       gP.y_max -gP.obstacles[c].gH() + 10
                 		and gP.ychange >= 0):
@@ -122,8 +124,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         elif not gP.onGround:
             gP.xchange = - gP.xchange
 
-        # jump-simulation (independent of starting point since change of 
-        # position and not the absolute position is calculated)
+        # jump-simulation (independent of starting point since change 
+        # of position and not the absolute position is calculated)
         if gP.jump:  
             gP.t += 1/gP.get_FPS()    
             gP.ychange =  1/gP.get_FPS() * (-v0 + a*gP.t)
@@ -135,8 +137,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 gP.t = 0
                 gP.ychange = 0
 
-        # if player stood on obstacle and now leaving it. No initial jump, 
-        # only falling down.
+        # if player stood on obstacle and now leaving it. No initial 
+        # jump, only falling down.
         if not gP.jump and not gP.at_x_of_obst  and player.gY() < gP.y_max:
             gP.t += 1/gP.get_FPS()
             gP.ychange =  1/gP.get_FPS() * (a*gP.t) 
@@ -170,7 +172,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                     target_hit = True
                     gP.species_saved += 1
                     r = ran.randrange(0, len(gP.things_hit_images))
-                    gP.co2_sources_gone.append(an_obj(f.gX(), f.gY(), 
+                    gP.co2_sources_gone.append(AnObj(f.gX(), f.gY(), 
                     						   50, 50,
                     						   gP.things_hit_images[r], 0))
                     gP.targets.remove(t)
@@ -189,14 +191,12 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         for t in gP.targets:
             for o in gP.obstacles:  
                 # check if target hits an obstacle
-                #if t.gY() >= gP.y_max + (player.gH() - o.gH()) and (t.gX() 
-                # + t.gW() >= o.gX() and t.gX() <= o.gX() + o.gW()):
                 if (t.gY() >= gP.y_max - o.gH() + 50 
                 		and t.gX() + t.gW() >= o.gX() 
                 		and t.gX() <= o.gX() + o.gW()):
                     hit_obstacle = True
                     gP.targets.remove(t)
-                    gP.co2_sources_gone.append(an_obj(t.gX(), t.gY(), 
+                    gP.co2_sources_gone.append(AnObj(t.gX(), t.gY(), 
                     						   50, 50, gP.co2_images, 0))
                     gP.set_lives(gP.get_lives()-1)
                     break
@@ -204,8 +204,9 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                     hit_obstacle = False
 
             if not hit_obstacle:
-                # check y- and x-coordinates of target and player, ycheck so 
-                # that you can jump over a target without getting hit
+                # check y- and x-coordinates of target and player, 
+                # ycheck so that you can jump over a target without 
+                # getting hit
                 if (t.gY() >= player.gY() 
                 		and t.gY() < player.gY() + player.gH()
                 		and t.gX() > player.gX() 
@@ -220,7 +221,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 # hits ground
                 else:
                     gP.set_lives(gP.get_lives()-1) 
-                    gP.co2_sources_gone.append(an_obj(t.gX(), t.gY(), 50, 50, 
+                    gP.co2_sources_gone.append(AnObj(t.gX(), t.gY(), 50, 50, 
                     						   gP.co2_images, 0))
                     gP.targets.remove(t)
 
@@ -232,8 +233,8 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             draw_image(o.gImage(), o.gX(), o.gY(), gameDisplay) 
             o.sState(o.gState()+1)
 
-        # draw saved animals/ continue animation or quit the animation when 
-        # all sequences done, '+20'-width found to look better
+        # draw saved animals/ continue animation or quit the animation
+        # when all sequences done, '+20'-width found to look better
         for s in gP.co2_sources_gone:
             if s.gState() == s.gNImages()-1:
                 gP.co2_sources_gone.remove(s)
@@ -282,13 +283,13 @@ def main():
     pg.font.init()
     myfont = pg.font.SysFont('Comic Sans MS', 30)
     
-    gP = gameParams()
+    gP = GameParams()
     colors = Colors()
 
     clock = pg.time.Clock()
     
-    # import all necessary images/frames for the animations and things that 
-    # are displayed
+    # import all necessary images/frames for the animations and things 
+    # that are displayed
     load_Images(gP, pg)
 
     gameDisplay = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
@@ -297,16 +298,16 @@ def main():
     pg.display.set_caption('Hide the pain EARTH')
 
     # initialise player-figure
-    player = an_obj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
+    player = AnObj(0,  gP.y_max-100, 80,  80, gP.stand_images, 0)
     
-    # calculate parameters for pyhsical simulation of a jump with specified 
-    # boundary-conditions (max. time and jumping-height)
+    # calculate parameters for pyhsical simulation of a jump with 
+    # specified boundary-conditions (max. time and jumping-height)
     (a,v0) = calc_a_and_v0(1, gP.jumpheight)
     
-    # place an obstacle at a random position, '+20'-width found by trial to 
-    # look better
+    # place an obstacle at a random position, '+20'-width found by 
+    # trial to look better
     xPosBloc = ran.randrange(gP.disp_wdth/3, (2/3)*gP.disp_wdth)
-    gP.obstacles.append(an_obj(xPosBloc, gP.y_max-10, 90, 60, 
+    gP.obstacles.append(AnObj(xPosBloc, gP.y_max-10, 90, 60, 
     					gP.obstacle_images, 0))
     for o in gP.obstacles:
 	    draw_image(o.gImage(), o.gX(), 
