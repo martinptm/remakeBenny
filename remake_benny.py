@@ -8,13 +8,8 @@ from allotherstuff import Colors, GameParams, AnObj, Target
 from allotherstuff import draw_image, load_images, handle_event
 from methods.calcjumpparams import calc_a_and_v0
 
-<<<<<<< HEAD
-# Hallo Kommentar
 
 def choosefig(player, game_display, cou, gP):
-=======
-def choosefig(player, gameDisplay, cou, gP):
->>>>>>> 2db270aa9552481a2001aa85759753bd39558d2d
     """
     Choose correct type of player-figure according to its current
     movement/action.
@@ -38,6 +33,7 @@ def choosefig(player, gameDisplay, cou, gP):
     # images according to the current movement
     player.sState(player.gState()+1)
     draw_image(player.gImage(), player.gX(), player.gY(), game_display)
+
 
 def message_display(game_display, hidden_text):
     """ Show an eastereg-text.
