@@ -8,7 +8,13 @@ from allotherstuff import Colors, GameParams, AnObj, Target
 from allotherstuff import draw_image, load_images, handle_event
 from methods.calcjumpparams import calc_a_and_v0
 
+<<<<<<< HEAD
+# Hallo Kommentar
+
+def choosefig(player, game_display, cou, gP):
+=======
 def choosefig(player, gameDisplay, cou, gP):
+>>>>>>> 2db270aa9552481a2001aa85759753bd39558d2d
     """
     Choose correct type of player-figure according to its current
     movement/action.
@@ -31,16 +37,16 @@ def choosefig(player, gameDisplay, cou, gP):
     # increase state to choose next frame from the matching sequence of 
     # images according to the current movement
     player.sState(player.gState()+1)
-    draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay)
+    draw_image(player.gImage(), player.gX(), player.gY(), game_display)
 
-def message_display(gameDisplay, hidden_text):
+def message_display(game_display, hidden_text):
     """ Show an eastereg-text.
     """
     ptext.draw(hidden_text.gText(), hidden_text.gPos(), 
     		  color=hidden_text.gColor(), fontsize=hidden_text.gSize())
 
 
-def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
+def game_loop(myfont, gP, clock, game_display, player, a, v0, colors):
     """ Iterate for every frame in the game.
     """
     # counter to track iterations of frames in the game loop
@@ -161,8 +167,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
         #   - Explosion
 
         # draw background
-        #gameDisplay.fill(colors.getColor('blue'))
-        draw_image(gP.background_image[0], 0, 0, gameDisplay)
+        draw_image(gP.background_image[0], 0, 0, game_display)
 
         # fruits to throw
         for f in gP.things_to_throw:  
@@ -186,7 +191,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 if f.gY() < 0:
                     gP.things_to_throw.remove(f)
                 else: 
-                    draw_image(f.gImage(), f.gX(), f.gY()-f.gH(), gameDisplay)
+                    draw_image(f.gImage(), f.gX(), f.gY()-f.gH(), game_display)
                     f.sY(f.gY()-20)
                     f.sState(f.gState()+1)
 
@@ -219,7 +224,7 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                 elif t.gY()+t.yspeed < gP.y_max+player.gH()-t.gH():
                     t.sY(t.gY()+t.yspeed)
                     draw_image(t.gImage(), t.gX()-t.gW(), t.gY()-t.gH(), 
-                    		   gameDisplay)
+                    		   game_display)
                     t.sState(t.gState()+1)
                 # hits ground
                 else:
@@ -229,11 +234,11 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
                     gP.targets.remove(t)
 
         # chose game-character matching the current movement
-        choosefig(player, gameDisplay, cou, gP)    
+        choosefig(player, game_display, cou, gP)    
 
         # draw obstacles, '+20'-width found by trial to look better
         for o in gP.obstacles:
-            draw_image(o.gImage(), o.gX(), o.gY(), gameDisplay) 
+            draw_image(o.gImage(), o.gX(), o.gY(), game_display) 
             o.sState(o.gState()+1)
 
         # draw saved animals/ continue animation or quit the animation
@@ -242,27 +247,27 @@ def game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors):
             if s.gState() == s.gNImages()-1:
                 gP.co2_sources_gone.remove(s)
             else:
-                draw_image(s.gImage(), s.gX()-10, s.gY()-10, gameDisplay)
+                draw_image(s.gImage(), s.gX()-10, s.gY()-10, game_display)
                 s.sState(s.gState()+1)
 
         # show stats
         draw_image(gP.counter_co2_images[str(gP.get_lives()*60)], 500, 0, 
-        		   gameDisplay)
+        		   game_display)
         draw_image(gP.counter_fruits_images[str(gP.fruits_left)], 500, 100, 
-        		   gameDisplay)
-        draw_image(gP.rescued_species_image[0], 500, 200, gameDisplay)
-        draw_image(gP.help_images[gP.help_image], 10, 10, gameDisplay)
+        		   game_display)
+        draw_image(gP.rescued_species_image[0], 500, 200, game_display)
+        draw_image(gP.help_images[gP.help_image], 10, 10, game_display)
         textsurface = myfont.render(str(gP.species_saved), False, (0, 0, 0))
-        gameDisplay.blit(textsurface,(545,275))
+        game_display.blit(textsurface,(545,275))
 
         if gP.draw_text:
             draw_image(gP.earth_overheated_images[r_num], 150, 250, 
-            	       gameDisplay)
+            	       game_display)
 
 
 
         if len(gP.hidden_texts) > 0:
-            message_display(gameDisplay, gP.hidden_texts[0])
+            message_display(game_display, gP.hidden_texts[0])
 
         pg.display.update()
         
@@ -295,9 +300,9 @@ def start_game():
     # that are displayed
     load_images(gP, pg)
 
-    gameDisplay = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
-    #gameDisplay.fill(colors.getColor('blue'))
-    draw_image(gP.background_image[0], 0, 0, gameDisplay)
+    game_display = pg.display.set_mode((gP.disp_wdth, gP.disp_hght))
+    #game_display.fill(colors.getColor('blue'))
+    draw_image(gP.background_image[0], 0, 0, game_display)
     pg.display.set_caption('Hide the pain EARTH')
 
     # initialise player-figure
@@ -314,13 +319,13 @@ def start_game():
     					gP.obstacle_images, 0))
     for o in gP.obstacles:
 	    draw_image(o.gImage(), o.gX(), 
-                  gP.y_max+player.gH()-o.gH(), gameDisplay) 
+                  gP.y_max+player.gH()-o.gH(), game_display) 
 
     # set starting-position of player
-    draw_image(player.gImage(), player.gX(), player.gY(), gameDisplay) 
+    draw_image(player.gImage(), player.gX(), player.gY(), game_display) 
 
     # actual game and user-interactions in here
-    game_loop(myfont, gP, clock, gameDisplay, player, a, v0, colors)
+    game_loop(myfont, gP, clock, game_display, player, a, v0, colors)
 
     # quit game and exit program 
     pg.quit()
