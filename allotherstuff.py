@@ -21,8 +21,8 @@ class Colors():
             
         return returncolor
     
-def draw_image(bl, x, y, gameDisplay):
-    gameDisplay.blit(bl, (x,y))
+def draw_image(object, x, y, gameDisplay):
+    gameDisplay.blit(object, (x,y))
 
 def load_images(gP, pg):
     """ Read in all frames needed in animations.
